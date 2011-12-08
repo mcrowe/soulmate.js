@@ -18,19 +18,23 @@ class SuggestionCollection
   find: (id) ->
   render: ->
   renderSuggestion: (id) ->
-    @find(id).render( renderCallback )
+    @find( id ).render( renderCallback )
+
+  focus: (id) ->
+    unless id < 0 || id > @suggestionCount - 1
+      @find( id ).focus()
+      @focusedId = id
+
   focusNext: ->
-    if @focusedId < @suggestionRows.length - 1
-      @focusedId += 1
-      @_refocus()
+    @focus( @focusedId + 1 )
+
   focusPrevious: ->
-    if @focusedId >= 0
-      @focusedId -= 1
-      @_refocus()
+    @focus( @focusedId - 1 )
+
   selectFocused: ->
-    @find(@focusedId).select( selectCallback )
-  _refocus: ->
-    @find(@focusedId).focus()
+    if @focusedId > 0
+      @find( @focusedId ).select( selectCallback )
+
   
 
 class window.Soulmate
