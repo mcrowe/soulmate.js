@@ -1,20 +1,42 @@
+# Helpers
+default = (input, default_value) ->
+  if input? 
+    input 
+  else
+    default_value
+
+# True if 'string' starts with 'start'
+startsWith = (string, start) ->
+  string[0...start.length] == start
+
 class Suggestion
-  constructor: (id, @term, @type, @data) ->
-    @element = $("#soulmate-suggestion-#{id}")
+  constructor: (index, @term, @type, @data) ->
+    @id = "#{index}-soulmate-suggestion"
     
-  select: ->
+  select: (callback) ->
+    callback( @term, @type, @data )
+    
   focus: ->
+    @element().addClass( 'focus' )
+    
   blur: ->
-  render: (callback) -> 
+    @element().removeClass( 'focus' )
+    
+  render: (callback) ->
     """
-      <a class='result' href='#{@data.path}'>
-        <span class='result-title'>#{@term}</span>
-      </a>
+      <span id="#{id}" class="result">
+        <span class="result-title">
+          #{callback( @term, @type, @data )}
+        </span>
+      </span>
     """
+    
+  element: ->
+    $(@id)  
 
 class SuggestionCollection
   constructor: (@renderCallback, @selectCallback) ->
-    @focusedId = -1
+    @focusedIndex = -1
     @types = []
     @suggestions = []
     
@@ -22,16 +44,16 @@ class SuggestionCollection
     
     @types = []
     @suggestions = []
-    id = 0
+    i = 0
     
     for type, typeSuggestions of results
       @types.push( type )
       
       for suggestion in typeSuggestions
         
-        @suggestions.push( new Suggestion(id, suggestion.term, suggestion.type, suggestion.data) )
-        id += 1
-        
+        @suggestions.push( new Suggestion(i, suggestion.term, suggestion.type, suggestion.data) )
+        i += 1
+            
   blurAll: ->
     suggestion.blur() for suggestion in @suggestions
 
@@ -40,6 +62,7 @@ class SuggestionCollection
     if @suggestions.length
     
       type = null
+      typeIndex = -1
     
       for suggestion in @suggestions
         if suggestion.type != type
@@ -47,32 +70,42 @@ class SuggestionCollection
             @_renderTypeEnd( type )
             
           type = suggestion.type
-          @_renderTypeStart( type )
+          typeIndex += 1
+          
+          @_renderTypeStart( typeIndex )
           
         @_renderSuggestion( suggestion )
     
       @_renderTypeEnd(type)
   
-  focus: (id) ->
-    unless id < 0 || id > @suggestions.length - 1
-      @suggestions[id].focus()
-      @focusedIndex = id
+  count: ->
+    @suggestions.length
+  
+  focus: (i) ->
+    unless i < 0 || i > @count() - 1
+      @suggestions[i].focus()
+      @focusedIndex = i
+  
+  focusElement: (element) ->
+    index = parseInt(element.attr('id'))
+    @focus( index )
 
   focusNext: ->
-    @focus( @focusedId + 1 )
+    @focus( @focusedIndex + 1 )
 
   focusPrevious: ->
-    @focus( @focusedId - 1 )
+    @focus( @focusedIndex - 1 )
 
   selectFocused: ->
-    if @focusedId > 0
-      @suggestions[@focusedId].select( selectCallback )
+    if @focusedIndex > 0
+      @suggestions[@focusedIndex].select( selectCallback )
   
   # PRIVATE
   
-  _renderTypeStart: (type) ->
+  _renderTypeStart: (i) ->
+    rowClass = if i == 0 'first-row' else ''
     """
-      <tr>
+      <tr class="#{rowClass}">
         <td class='results-container'>
           <div class='results'>
     """
@@ -93,31 +126,27 @@ class window.Soulmate
 
   KEYCODES = {9: 'tab', 13: 'enter', 27: 'escape', 38: 'up', 40: 'down'}
   
-  constructor: (input, url, types, options) ->
+  constructor: (input, url, types, renderCallback, selectCallback) ->
 
     that = this
       
     @input            = input
     @url              = url
-    @types            = types
     
-    @maxResults       = _default( options.maxResults, 8 )
-    @minQueryLength   = _default( options.minQueryLength, 1 )
-    @selectSuggestionCallback = _default( options.selectSuggestionCallback, -> )
-    @renderSuggestionCallback = _default( options.renderSuggestionCallback, -> )
+    @maxResults       = default( options.maxResults, 8 )
+    @minQueryLength   = default( options.minQueryLength, 1 )
+
+    @suggestions      = new SuggestionCollection( renderCallback, selectCallback)
     
-    @suggestionRows     = $()
-    @enabled            = false
-    @lastQuery          = ''
-    @focusedIndex       = -1
-    @emptyQueries       = []
-    @xhr                = null
+    @lastQuery        = ''
+    @emptyQueries     = []
+    @xhr              = null
   
     @input.
       keydown( @handleKeydown ).
       keyup( @handleKeyup ).
       mouseover( ->
-        that.clearFocus()
+        that.suggestions.blurAll()
       )
     
     @container = $("""
@@ -130,8 +159,10 @@ class window.Soulmate
       """
     ).insertAfter(@input)
     
+    @contents = $('tbody', @container)
+    
     @container.delegate('.result', 'mouseover', ->
-      that.focusSuggestion( that.suggestionRows.index(this) )
+      that.suggestions.focusElement( this )
     })
     
   handleKeydown: (event) ->  
@@ -141,16 +172,16 @@ class window.Soulmate
     switch KEYCODES[event.keyCode]
 
       when 'escape'
-        hideContainer()
+        @hideContainer()
 
       when 'tab', 'enter'
-        selectSuggestion(focusedIndex) if focusedIndex >= 0
+        @suggestions.selectFocused()
 
       when 'up'
-        focusPreviousSuggestion()
+        @suggestions.focusPrevious()
 
       when 'down'
-        focusNextSuggestion()
+        @suggestions.focusNext()
 
       else
         killEvent = false
@@ -163,29 +194,20 @@ class window.Soulmate
     
     query = @input.val()
 
-    if query != lastQuery && !isEmptyQuery(query)
+    if query != lastQuery && !@isEmptyQuery(query)
 
       lastQuery = query
 
-      clearFocus()
+      @suggestions.blurAll()
 
-      if query.length >= minQueryLength
-        getSuggestions(query)
+      if query.length >= @minQueryLength
+        @fetch(query)
 
       else
         hideContainer()    
       
-  _default: (input, default_value) ->
-    if input? 
-      input 
-    else
-      default_value    
-    
-
   hideContainer: ->
-    @enabled = false
-    
-    clearFocus()
+    @suggestions.blurAll()
     
     @container.hide()
     
@@ -193,8 +215,6 @@ class window.Soulmate
     $(document).unbind('click.soulmate')
 
   showContainer: ->
-    @enabled = true
-    
     @container.show()
 
     # Hide the container if the user clicks outside of it.
@@ -202,31 +222,7 @@ class window.Soulmate
       @hideContainer() unless @container.has( $(event.target) ).length
     )
 
-  selectSuggestion: (i) ->
-    if i >= 0
-      @selectSuggestionCallback()
-
-  focusPreviousSuggestion: ->
-    if @focusedIndex >= 0
-      if @focusedIndex == 0
-        @clearFocus()
-      else
-        @focusSuggestion(@focusedIndex - 1)
-
-  focusNextSuggestion: ->
-    if @focusedIndex < @suggestionRows.length - 1
-      @focusSuggestion(@focusedIndex + 1)
-
-  clearFocus: ->
-    @focusedIndex = -1
-    @suggestionRows.removeClass('focus')
-
-  focusSuggestion: (i) ->
-    @clearFocus()
-    @focusedIndex = i
-    @suggestionRows.eq(i).addClass('focus')
-
-  getSuggestions = (query) ->
+  fetch: (query) ->
     
     # Cancel any previous requests if there are any.
     @xhr.abort() if @xhr?
@@ -244,62 +240,26 @@ class window.Soulmate
         limit: @maxResults
       }
       success: (data) ->
-        @renderSuggestions(data.results, query)
+        @update( data.results, query )
     })
 
-  renderSuggestions = (suggestions, query) ->
-
-    if hasGrandChildren(suggestions)
-
-      $containerTable.empty()
-
-      for type, typeSuggestions of suggestions
-        unless typeSuggestions.length == 0
-          row = """
-            <tr>
-              <td class='results-container'>
-                <div class='results'>
-          """
-          for suggestion in typeSuggestions
-            row += """
-                  <a class='result' href='#{suggestion.data.path}'>
-                    <span class='result-title'>#{suggestion.term}</span>
-                  </a>
-            """
-          row += """
-                </div>
-              </td>
-              <td class='results-label'>#{type}</td>
-            </tr>
-          """
-
-          $(row).appendTo($containerTable)
+  update: (results, query) ->
     
-      # Identify the first fow
-      $('tr', $containerTable).first().addClass('first-row')
-      
-      $suggestionRows = $('.result', $container)
+    @suggestions.update(results)
+    
+    if @suggestions.count() > 0
+
+      @contents.html( $(@suggestions.render()) )
         
-      showContainer()
+      @showContainer()
 
     else 
-      emptyQueries.push(query)
-      hideContainer()
-      
-  # Check if any attributes of an object have non-empty attributes themselves.
-  hasGrandChildren = (object) ->
-    for child, grandChildren of object
-      return true if grandChildren.length > 0
-    return false
+      @emptyQueries.push( query )
+      @hideContainer()
     
   # If the query starts with any queries we have determined to have empty results
   # then it will have an empty result too, so don't bother searching for it.
-  isEmptyQuery = (query) ->
-    for emptyQuery in emptyQueries
-      return true if startsWith(query, emptyQuery)
+  isEmptyQuery: (query) ->
+    for emptyQuery in @emptyQueries
+      return true if startsWith( query, emptyQuery )
     return false
-  
-  # True if 'string' starts with 'start'
-  startsWith = (string, start) ->
-    string[0...start.length] == start
-    
