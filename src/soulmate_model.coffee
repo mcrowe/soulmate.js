@@ -31,13 +31,13 @@ class Query
     return false
     
 class Suggestion
-  constructor: (index, @term, @type, @data) ->
+  constructor: (index, @term, @data, @type) ->
     @id = "#{index}-soulmate-suggestion"
     
   select: (callback) ->
-    callback( @term, @type, @data )
+    callback( @term, @data, @type )
     
-  focus: ->
+  focus: ->  
     @element().addClass( 'focus' )
     
   blur: ->
@@ -45,40 +45,37 @@ class Suggestion
     
   render: (callback) ->
     """
-      <span id="#{id}" class="result">
+      <span id="#{@id}" class="result">
         <span class="result-title">
-          #{callback( @term, @type, @data )}
+          #{callback( @term, @data, @type)}
         </span>
       </span>
     """
-    
+
   element: ->
-    $(@id)  
+    $('#' + @id)  
 
 class SuggestionCollection
   constructor: (@renderCallback, @selectCallback) ->
     @focusedIndex = -1
-    @types = []
     @suggestions = []
     
   update: (results) ->
-    
-    @types = []
     @suggestions = []
     i = 0
     
     for type, typeSuggestions of results
-      @types.push( type )
-      
       for suggestion in typeSuggestions
-        
-        @suggestions.push( new Suggestion(i, suggestion.term, suggestion.type, suggestion.data) )
+        @suggestions.push( new Suggestion(i, suggestion.term, suggestion.data, type) )
         i += 1
             
   blurAll: ->
+    @focusedIndex = -1
     suggestion.blur() for suggestion in @suggestions
 
   render: ->
+    
+    html = ''
     
     if @suggestions.length
     
@@ -88,27 +85,33 @@ class SuggestionCollection
       for suggestion in @suggestions
         if suggestion.type != type
           if type != null
-            @_renderTypeEnd( type )
+            html += @_renderTypeEnd( type )
             
           type = suggestion.type
           typeIndex += 1
           
-          @_renderTypeStart( typeIndex )
+          html += @_renderTypeStart( typeIndex )
           
-        @_renderSuggestion( suggestion )
+        html += @_renderSuggestion( suggestion )
     
-      @_renderTypeEnd(type)
+      html += @_renderTypeEnd(type)
+      
+    html
   
   count: ->
     @suggestions.length
   
-  focus: (i) ->
-    unless i < 0 || i > @count() - 1
-      @suggestions[i].focus()
-      @focusedIndex = i
+  focus: (i) ->        
+    if i < @count()
+      @blurAll()
+      if i < 0
+        @focusedIndex = -1
+      else
+        @suggestions[i].focus()
+        @focusedIndex = i
   
   focusElement: (element) ->
-    index = parseInt(element.attr('id'))
+    index = parseInt($(element).attr('id'))
     @focus( index )
 
   focusNext: ->
@@ -118,13 +121,13 @@ class SuggestionCollection
     @focus( @focusedIndex - 1 )
 
   selectFocused: ->
-    if @focusedIndex > 0
-      @suggestions[@focusedIndex].select( selectCallback )
+    if @focusedIndex >= 0
+      @suggestions[@focusedIndex].select( @selectCallback )
   
   # PRIVATE
   
   _renderTypeStart: (i) ->
-    rowClass = if i == 0 'first-row' else ''
+    rowClass = if i == 0 then 'first-row' else ''
     """
       <tr class="#{rowClass}">
         <td class='results-container'>
@@ -143,16 +146,13 @@ class SuggestionCollection
     suggestion.render( @renderCallback )
   
 
-class window.Soulmate
+class Soulmate
 
   KEYCODES = {9: 'tab', 13: 'enter', 27: 'escape', 38: 'up', 40: 'down'}
   
-  constructor: (input, url, types, renderCallback, selectCallback) ->
+  constructor: (@input, @url, @types, renderCallback, selectCallback, options = {}) ->
 
     that = this
-      
-    @input            = input
-    @url              = url
     
     @maxResults       = if options.maxResults? options.maxResults         else 8
     minQueryLength    = if options.minQueryLength? options.minQueryLength else 1
@@ -162,7 +162,7 @@ class window.Soulmate
     @suggestions      = new SuggestionCollection( renderCallback, selectCallback)  
     @query            = new Query( minQueryLength )  
         
-    @container = $("""
+    $("""
         <div id='autocomplete>
           <table>
             <tbody>
@@ -172,11 +172,12 @@ class window.Soulmate
       """
     ).insertAfter(@input)
     
+    @container = $('#autocomplete')
     @contents = $('tbody', @container)
       
     @container.delegate('.result', 'mouseover', ->
       that.suggestions.focusElement( this )
-    })
+    )
     
     @input.
       keydown( @handleKeydown ).
@@ -185,7 +186,7 @@ class window.Soulmate
         that.suggestions.blurAll()
       )
     
-  handleKeydown: (event) ->  
+  handleKeydown: (event) =>  
     
     killEvent = true
     
@@ -210,7 +211,7 @@ class window.Soulmate
       event.stopImmediatePropagation()
       event.preventDefault()
       
-  handleKeyup: (event) ->
+  handleKeyup: (event) =>
     
     @query.setValue( @input.val() )
     
@@ -222,7 +223,7 @@ class window.Soulmate
         @fetchResults()
     
       else
-        hideContainer()
+        @hideContainer()
       
   hideContainer: ->
     @suggestions.blurAll()
@@ -236,7 +237,7 @@ class window.Soulmate
     @container.show()
 
     # Hide the container if the user clicks outside of it.
-    $(document).bind('click.soulmate', (event) ->
+    $(document).bind('click.soulmate', (event) =>
       @hideContainer() unless @container.has( $(event.target) ).length
     )
 
@@ -257,7 +258,7 @@ class window.Soulmate
         types: @types
         limit: @maxResults
       }
-      success: (data) ->
+      success: (data) =>
         @update( data.results )
     })
 
@@ -267,10 +268,18 @@ class window.Soulmate
     if @suggestions.count() > 0
 
       @contents.html( $(@suggestions.render()) )
-        
+              
       @showContainer()
 
     else
       @query.markEmpty()
 
       @hideContainer()
+
+render = (term, data, type) ->
+  term
+  
+select = (term, data, type) ->
+  console.log("Selected #{term}")
+      
+new Soulmate( $('#search-input'), 'http://soulmate.ogglexxx.com', ['categories', 'pornstars'], render, select)
