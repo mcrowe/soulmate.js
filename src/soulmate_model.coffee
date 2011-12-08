@@ -1,3 +1,5 @@
+$ = jQuery
+
 class Query
   constructor: (@minLength) ->
     @value = ''
@@ -21,7 +23,7 @@ class Query
     @_isValid() && !@_isEmpty()
     
   _isValid: ->
-    @value.length > @minLength
+    @value.length >= @minLength
 
   # A value is empty if it starts with any of the values
   # in the emptyValues array.
@@ -144,22 +146,26 @@ class SuggestionCollection
   
   _renderSuggestion: (suggestion) ->
     suggestion.render( @renderCallback )
-  
 
 class Soulmate
 
   KEYCODES = {9: 'tab', 13: 'enter', 27: 'escape', 38: 'up', 40: 'down'}
   
-  constructor: (@input, @url, @types, renderCallback, selectCallback, options = {}) ->
+  constructor: (@input, options) ->
 
     that = this
     
+    {url, types, renderCallback, selectCallback} = options
+    
+    @url              = url
+    @types            = types
+
     @maxResults       = if options.maxResults? options.maxResults         else 8
     minQueryLength    = if options.minQueryLength? options.minQueryLength else 1
     
     @xhr              = null
 
-    @suggestions      = new SuggestionCollection( renderCallback, selectCallback)  
+    @suggestions      = new SuggestionCollection( renderCallback, selectCallback )  
     @query            = new Query( minQueryLength )  
         
     $("""
@@ -175,8 +181,14 @@ class Soulmate
     @container = $('#autocomplete')
     @contents = $('tbody', @container)
       
-    @container.delegate('.result', 'mouseover', ->
-      that.suggestions.focusElement( this )
+    @container.delegate('.result',
+      mouseover: -> that.suggestions.focusElement( this )
+      click: (event) -> 
+        event.preventDefault()
+        that.suggestions.selectFocused()
+        
+        # Refocus the input field so it remains active after clicking a suggestion.
+        that.input.focus()
     )
     
     @input.
@@ -212,7 +224,6 @@ class Soulmate
       event.preventDefault()
       
   handleKeyup: (event) =>
-    
     @query.setValue( @input.val() )
     
     if @query.hasChanged()
@@ -242,12 +253,9 @@ class Soulmate
     )
 
   fetchResults: ->
-    
     # Cancel any previous requests if there are any.
     @xhr.abort() if @xhr?
     
-    # Get the results for the given query, store in 'results'
-    # and render them.
     @xhr = $.ajax({
       url: @url
       dataType: 'jsonp'
@@ -276,10 +284,18 @@ class Soulmate
 
       @hideContainer()
 
+$.fn.soulmate = (options) ->
+  new Soulmate($(this), options)
+
 render = (term, data, type) ->
   term
   
 select = (term, data, type) ->
   console.log("Selected #{term}")
       
-new Soulmate( $('#search-input'), 'http://soulmate.ogglexxx.com', ['categories', 'pornstars'], render, select)
+$('#search-input').soulmate(
+  url:            'http://soulmate.ogglexxx.com', 
+  types:          ['categories', 'pornstars'], 
+  renderCallback: render, 
+  selectCallback: select
+)

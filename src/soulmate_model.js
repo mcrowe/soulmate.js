@@ -1,6 +1,7 @@
 (function() {
-  var Query, Soulmate, Suggestion, SuggestionCollection, render, select;
+  var $, Query, Soulmate, Suggestion, SuggestionCollection, render, select;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  $ = jQuery;
   Query = (function() {
     function Query(minLength) {
       this.minLength = minLength;
@@ -25,7 +26,7 @@
       return this._isValid() && !this._isEmpty();
     };
     Query.prototype._isValid = function() {
-      return this.value.length > this.minLength;
+      return this.value.length >= this.minLength;
     };
     Query.prototype._isEmpty = function() {
       var empty, _i, _len, _ref;
@@ -177,17 +178,15 @@
       38: 'up',
       40: 'down'
     };
-    function Soulmate(input, url, types, renderCallback, selectCallback, options) {
-      var minQueryLength, that;
+    function Soulmate(input, options) {
+      var minQueryLength, renderCallback, selectCallback, that, types, url;
       this.input = input;
-      this.url = url;
-      this.types = types;
-      if (options == null) {
-        options = {};
-      }
       this.handleKeyup = __bind(this.handleKeyup, this);
       this.handleKeydown = __bind(this.handleKeydown, this);
       that = this;
+      url = options.url, types = options.types, renderCallback = options.renderCallback, selectCallback = options.selectCallback;
+      this.url = url;
+      this.types = types;
       this.maxResults = (typeof options.maxResults === "function" ? options.maxResults(options.maxResults) : void 0) ? void 0 : 8;
       minQueryLength = (typeof options.minQueryLength === "function" ? options.minQueryLength(options.minQueryLength) : void 0) ? void 0 : 1;
       this.xhr = null;
@@ -196,8 +195,15 @@
       $("<div id='autocomplete>\n  <table>\n    <tbody>\n    </tbody>\n  </table>\n</div>").insertAfter(this.input);
       this.container = $('#autocomplete');
       this.contents = $('tbody', this.container);
-      this.container.delegate('.result', 'mouseover', function() {
-        return that.suggestions.focusElement(this);
+      this.container.delegate('.result', {
+        mouseover: function() {
+          return that.suggestions.focusElement(this);
+        },
+        click: function(event) {
+          event.preventDefault();
+          that.suggestions.selectFocused();
+          return that.input.focus();
+        }
       });
       this.input.keydown(this.handleKeydown).keyup(this.handleKeyup).mouseover(function() {
         return that.suggestions.blurAll();
@@ -283,11 +289,19 @@
     };
     return Soulmate;
   })();
+  $.fn.soulmate = function(options) {
+    return new Soulmate($(this), options);
+  };
   render = function(term, data, type) {
     return term;
   };
   select = function(term, data, type) {
     return console.log("Selected " + term);
   };
-  new Soulmate($('#search-input'), 'http://soulmate.ogglexxx.com', ['categories', 'pornstars'], render, select);
+  $('#search-input').soulmate({
+    url: 'http://soulmate.ogglexxx.com',
+    types: ['categories', 'pornstars'],
+    renderCallback: render,
+    selectCallback: select
+  });
 }).call(this);
