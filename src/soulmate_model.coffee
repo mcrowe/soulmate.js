@@ -192,11 +192,21 @@ class window.Soulmate
       
   handleKeyup: (event) ->
     
+    @query.value( @input.val() )
+    
+    if @query.hasChanged()
+      
+      if @query.willHaveResults()
+        
+        @suggestions.blurAll()
+        @fetch( @query )
+        
+    
     query = @input.val()
 
-    if query != lastQuery && !@isEmptyQuery(query)
+    if query != @lastQuery && !@isEmptyQuery(query)
 
-      lastQuery = query
+      @lastQuery = query
 
       @suggestions.blurAll()
 
@@ -244,7 +254,6 @@ class window.Soulmate
     })
 
   update: (results, query) ->
-    
     @suggestions.update(results)
     
     if @suggestions.count() > 0
