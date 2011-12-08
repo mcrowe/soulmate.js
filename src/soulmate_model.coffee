@@ -1,29 +1,62 @@
 class Suggestion
-  constructor: ->
-    @term = 
-    @type =
-    @data =
+  constructor: (id, @term, @type, @data) ->
+    @element = $("#soulmate-suggestion-#{id}")
+    
   select: ->
   focus: ->
   blur: ->
-  render: (callback) ->
+  render: (callback) -> 
+    """
+      <a class='result' href='#{@data.path}'>
+        <span class='result-title'>#{@term}</span>
+      </a>
+    """
 
 class SuggestionCollection
-  constructor: (renderCallback, selectCallback) ->
+  constructor: (@renderCallback, @selectCallback) ->
     @focusedId = -1
-    @types = 
-    @suggestionCount
-  update: (resultsFromSoulmate) ->
+    @types = []
+    @suggestions = []
+    
+  update: (results) ->
+    
+    @types = []
+    @suggestions = []
+    id = 0
+    
+    for type, typeSuggestions of results
+      @types.push( type )
+      
+      for suggestion in typeSuggestions
+        
+        @suggestions.push( new Suggestion(id, suggestion.term, suggestion.type, suggestion.data) )
+        id += 1
+        
   blurAll: ->
-  find: (id) ->
-  render: ->
-  renderSuggestion: (id) ->
-    @find( id ).render( renderCallback )
+    suggestion.blur() for suggestion in @suggestions
 
+  render: ->
+    
+    if @suggestions.length
+    
+      type = null
+    
+      for suggestion in @suggestions
+        if suggestion.type != type
+          if type != null
+            @_renderTypeEnd( type )
+            
+          type = suggestion.type
+          @_renderTypeStart( type )
+          
+        @_renderSuggestion( suggestion )
+    
+      @_renderTypeEnd(type)
+  
   focus: (id) ->
-    unless id < 0 || id > @suggestionCount - 1
-      @find( id ).focus()
-      @focusedId = id
+    unless id < 0 || id > @suggestions.length - 1
+      @suggestions[id].focus()
+      @focusedIndex = id
 
   focusNext: ->
     @focus( @focusedId + 1 )
@@ -33,8 +66,27 @@ class SuggestionCollection
 
   selectFocused: ->
     if @focusedId > 0
-      @find( @focusedId ).select( selectCallback )
-
+      @suggestions[@focusedId].select( selectCallback )
+  
+  # PRIVATE
+  
+  _renderTypeStart: (type) ->
+    """
+      <tr>
+        <td class='results-container'>
+          <div class='results'>
+    """
+  
+  _renderTypeEnd: (type) ->
+    """
+          </div>
+        </td>
+        <td class='results-label'>#{type}</td>
+      </tr>
+    """
+  
+  _renderSuggestion: (suggestion) ->
+    suggestion.render( @renderCallback )
   
 
 class window.Soulmate
