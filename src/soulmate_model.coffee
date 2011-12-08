@@ -1,14 +1,35 @@
-# Helpers
-default = (input, default_value) ->
-  if input? 
-    input 
-  else
-    default_value
+class Query
+  constructor: (@minLength) ->
+    @value = ''
+    @lastValue = ''
+    @emptyValues = []
+    
+  getValue: ->
+    @value
+  
+  setValue: (newValue) ->
+    @lastValue = @value
+    @value = newValue
+  
+  hasChanged: ->
+    !(@value == @lastValue)
+    
+  markEmpty: ->
+    @emptyValues.push( @value )
+    
+  willHaveResults: ->
+    @_isValid() && !@_isEmpty()
+    
+  _isValid: ->
+    @value.length > @minLength
 
-# True if 'string' starts with 'start'
-startsWith = (string, start) ->
-  string[0...start.length] == start
-
+  # A value is empty if it starts with any of the values
+  # in the emptyValues array.
+  _isEmpty: ->
+    for empty in @emptyValues
+      return true if @value[0...empty.length] == empty
+    return false
+    
 class Suggestion
   constructor: (index, @term, @type, @data) ->
     @id = "#{index}-soulmate-suggestion"
@@ -133,22 +154,14 @@ class window.Soulmate
     @input            = input
     @url              = url
     
-    @maxResults       = default( options.maxResults, 8 )
-    @minQueryLength   = default( options.minQueryLength, 1 )
-
-    @suggestions      = new SuggestionCollection( renderCallback, selectCallback)
+    @maxResults       = if options.maxResults? options.maxResults         else 8
+    minQueryLength    = if options.minQueryLength? options.minQueryLength else 1
     
-    @lastQuery        = ''
-    @emptyQueries     = []
     @xhr              = null
-  
-    @input.
-      keydown( @handleKeydown ).
-      keyup( @handleKeyup ).
-      mouseover( ->
-        that.suggestions.blurAll()
-      )
-    
+
+    @suggestions      = new SuggestionCollection( renderCallback, selectCallback)  
+    @query            = new Query( minQueryLength )  
+        
     @container = $("""
         <div id='autocomplete>
           <table>
@@ -160,10 +173,17 @@ class window.Soulmate
     ).insertAfter(@input)
     
     @contents = $('tbody', @container)
-    
+      
     @container.delegate('.result', 'mouseover', ->
       that.suggestions.focusElement( this )
     })
+    
+    @input.
+      keydown( @handleKeydown ).
+      keyup( @handleKeyup ).
+      mouseover( ->
+        that.suggestions.blurAll()
+      )
     
   handleKeydown: (event) ->  
     
@@ -192,29 +212,17 @@ class window.Soulmate
       
   handleKeyup: (event) ->
     
-    @query.value( @input.val() )
+    @query.setValue( @input.val() )
     
     if @query.hasChanged()
       
       if @query.willHaveResults()
-        
+      
         @suggestions.blurAll()
-        @fetch( @query )
-        
+        @fetchResults()
     
-    query = @input.val()
-
-    if query != @lastQuery && !@isEmptyQuery(query)
-
-      @lastQuery = query
-
-      @suggestions.blurAll()
-
-      if query.length >= @minQueryLength
-        @fetch(query)
-
       else
-        hideContainer()    
+        hideContainer()
       
   hideContainer: ->
     @suggestions.blurAll()
@@ -232,7 +240,7 @@ class window.Soulmate
       @hideContainer() unless @container.has( $(event.target) ).length
     )
 
-  fetch: (query) ->
+  fetchResults: ->
     
     # Cancel any previous requests if there are any.
     @xhr.abort() if @xhr?
@@ -245,15 +253,15 @@ class window.Soulmate
       timeout: 500
       cache: true
       data: {
-        term: query
+        term: @query.getValue()
         types: @types
         limit: @maxResults
       }
       success: (data) ->
-        @update( data.results, query )
+        @update( data.results )
     })
 
-  update: (results, query) ->
+  update: (results) ->
     @suggestions.update(results)
     
     if @suggestions.count() > 0
@@ -262,13 +270,7 @@ class window.Soulmate
         
       @showContainer()
 
-    else 
-      @emptyQueries.push( query )
+    else
+      @query.markEmpty()
+
       @hideContainer()
-    
-  # If the query starts with any queries we have determined to have empty results
-  # then it will have an empty result too, so don't bother searching for it.
-  isEmptyQuery: (query) ->
-    for emptyQuery in @emptyQueries
-      return true if startsWith( query, emptyQuery )
-    return false
