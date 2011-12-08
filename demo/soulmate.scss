@@ -1,0 +1,138 @@
+$helvetica: "Helvetica Neue", Helvetica, Arial, sans-serif;
+$lucida: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
+
+@mixin border-radius($radius){
+  -webkit-border-radius: $radius;
+	-moz-border-radius: $radius;
+	-ms-border-radius: $radius;
+  -o-border-radius: $radius;
+	-khtml-border-radius: $radius;
+	border-radius: $radius;
+}
+
+@mixin box-shadow($horizontal-offset, $vertical-offset, $blur-radius, $color){
+  -webkit-box-shadow: $horizontal-offset $vertical-offset $blur-radius $color;
+  -moz-box-shadow: $horizontal-offset $vertical-offset $blur-radius $color;
+  -khtml-box-shadow: $horizontal-offset $vertical-offset $blur-radius $color;
+  -ms-box-shadow: $horizontal-offset $vertical-offset $blur-radius $color;
+  -o-box-shadow: $horizontal-offset $vertical-offset $blur-radius $color;
+  box-shadow:$horizontal-offset $vertical-offset $blur-radius $color;
+}
+
+@mixin vertical-gradient($top-color, $bottom-color){
+  background: $top-color;
+  background: -moz-linear-gradient(top, $top-color 0, $bottom-color 100%);
+  background: -webkit-gradient(linear, 0 0, 0 100%, from($top-color), to($bottom-color));
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#{$top-color},endColorstr=#{$bottom-color})";
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#{$top-color},endColorstr=#{$bottom-color});
+}
+
+
+
+html {
+  background-color: #eee;
+}
+
+body{
+  width: 406px;
+  margin: 200px auto;
+}
+
+#search-input{ 
+  border: 1px solid #bbb;
+  color: #545C5F;
+  font-family: $helvetica;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  margin: 0;
+  padding: 8px 10px 6px;
+  width: 406px;
+  &:focus{ outline: none; }
+}
+
+#autocomplete {
+  background-color: white;
+  display: none;
+  font: 12px/14px $helvetica;
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  text-shadow: 0 0 0 white;
+  top: 242px;
+  width: 405px;
+  z-index: 1000;
+  @include border-radius(3px);
+  @include box-shadow(0, 2px, 8px, rgba(0,0,0,.3));
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    border-spacing: 2px;
+    border-color: gray;
+  }
+  
+  tr {
+    border-top: 1px solid #ddd;
+  }
+  
+  .first-row {
+    border-style: none !important;
+  }
+  
+  .results-label{
+    color: #666;
+    text-align: left;
+    border-left: 1px solid #ddd;
+    padding: 10px 13px 0 10px;
+    width: 68px;
+    vertical-align: top;
+    font-size: 9px;
+    text-transform: uppercase;
+    background-color: #f8f8f8;
+    @include border-radius(5px);
+    letter-spacing: 1px;
+    font-family: $lucida;
+  }
+  
+  .results-container {
+    border-top: none;
+    padding: 5px 0;
+  }
+  
+  .result {
+    color: #346caf;
+    cursor: pointer;
+    display: block;
+    padding: 5px 12px;
+    text-decoration: none;
+
+    &.focus{
+      margin-right: -1px;
+      padding-right: 9px;
+      position: relative;
+      z-index: 1;
+      @include vertical-gradient(#444444, #545454);
+      @include box-shadow(0, 1px, 2px , rgba(0,0,0,0.3));
+      
+      .result-title {
+        color: white;
+        text-shadow: 0 1px 1px #32629b;
+      }
+    }
+  }
+
+  .result-title{
+    display: block;
+    font-weight: bold;
+    font-size: 12px;
+    color: #333;
+  }
+
+}
+
+// Fix IE8 inconsistency.
+//html.oldie #autocomplete{
+//  border: 1px solid #ddd;
+//  width: 444px; // Regular width - 2px
+//}
