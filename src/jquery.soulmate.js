@@ -286,4 +286,9 @@
     new Soulmate($(this), options);
     return $(this);
   };
+  window._test = {};
+  window._test.Query = Query;
+  window._test.Suggestion = Suggestion;
+  window._test.SuggestionCollection = SuggestionCollection;
+  window._test.Soulmate = Soulmate;
 }).call(this);
