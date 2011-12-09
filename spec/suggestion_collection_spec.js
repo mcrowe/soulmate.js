@@ -2,10 +2,11 @@
   var SuggestionCollection;
   SuggestionCollection = window._test.SuggestionCollection;
   describe('SuggestionCollection', function() {
-    var callback, collection;
+    var collection;
     collection = null;
-    callback = function() {};
     beforeEach(function() {
+      var callback;
+      callback = function() {};
       return collection = new SuggestionCollection(callback, callback);
     });
     describe('#initialize', function() {
@@ -53,7 +54,7 @@
           return _results;
         });
       });
-      return describe('#selectFocused', function() {
+      describe('#selectFocused', function() {
         return describe('when a suggestion is focused', function() {
           it('should call "select" on the suggestion that is focused, with the selectCallback', function() {
             collection.focus(1);
@@ -69,6 +70,30 @@
               _results.push(expect(collection.suggestions[i].select).not.toHaveBeenCalled());
             }
             return _results;
+          });
+        });
+      });
+      return describe('focus helpers', function() {
+        beforeEach(function() {
+          collection.focus(1);
+          return spyOn(collection, 'focus');
+        });
+        describe('#focusNext', function() {
+          return it('should focus the next suggestion', function() {
+            collection.focusNext();
+            return expect(collection.focus).toHaveBeenCalledWith(2);
+          });
+        });
+        describe('#focusPrevious', function() {
+          return it('should focus the previous suggestion', function() {
+            collection.focusPrevious();
+            return expect(collection.focus).toHaveBeenCalledWith(0);
+          });
+        });
+        return describe('#focusElement', function() {
+          return it('should focus the suggestion whos element matches the one provided', function() {
+            collection.focusElement($('<div id="73-soulmate-suggestion">'));
+            return expect(collection.focus).toHaveBeenCalledWith(73);
           });
         });
       });

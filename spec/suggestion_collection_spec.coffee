@@ -3,9 +3,9 @@ SuggestionCollection = window._test.SuggestionCollection
 describe 'SuggestionCollection', ->
 
   collection = null
-  callback = ->
-  
+
   beforeEach ->
+    callback = ->
     collection = new SuggestionCollection( callback, callback )
 
   describe '#initialize', ->
@@ -55,3 +55,27 @@ describe 'SuggestionCollection', ->
           collection.selectFocused()
           for i in [0..9]
             expect( collection.suggestions[i].select ).not.toHaveBeenCalled()
+            
+    describe 'focus helpers', ->
+      
+      beforeEach ->
+        collection.focus(1)
+        spyOn(collection, 'focus')
+            
+      describe '#focusNext', ->
+      
+        it 'should focus the next suggestion', ->
+          collection.focusNext()
+          expect( collection.focus ).toHaveBeenCalledWith( 2 )
+        
+      describe '#focusPrevious', ->
+        
+        it 'should focus the previous suggestion', ->
+          collection.focusPrevious()
+          expect( collection.focus ).toHaveBeenCalledWith( 0 )            
+    
+      describe '#focusElement', ->
+        
+        it 'should focus the suggestion whos element matches the one provided', ->
+          collection.focusElement( $('<div id="73-soulmate-suggestion">') )
+          expect( collection.focus ).toHaveBeenCalledWith( 73 )

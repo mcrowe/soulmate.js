@@ -269,7 +269,6 @@ $.fn.soulmate = (options) ->
   new Soulmate($(this), options)
   return $(this)
 
-
 window._test = {}
 window._test.Query = Query
 window._test.Suggestion = Suggestion
