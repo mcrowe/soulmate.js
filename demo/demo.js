@@ -9,8 +9,10 @@ select = function(term, data, type){
 }
       
 $('#search-input').soulmate({
-  url:            'http://soulmate.ogglexxx.com', 
-  types:          ['categories', 'pornstars'], 
+  url:            'http://seatgeek.com/autocomplete', 
+  types:          ['teamband', 'event', 'venue', 'tournament'], 
   renderCallback: render, 
-  selectCallback: select
+  selectCallback: select,
+  minQueryLength: 2,
+  maxResults: 5
 });

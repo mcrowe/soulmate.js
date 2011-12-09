@@ -175,16 +175,15 @@
       40: 'down'
     };
     function Soulmate(input, options) {
-      var minQueryLength, renderCallback, selectCallback, that, types, url;
+      var maxResults, minQueryLength, renderCallback, selectCallback, that, types, url;
       this.input = input;
       this.handleKeyup = __bind(this.handleKeyup, this);
       this.handleKeydown = __bind(this.handleKeydown, this);
       that = this;
-      url = options.url, types = options.types, renderCallback = options.renderCallback, selectCallback = options.selectCallback;
+      url = options.url, types = options.types, renderCallback = options.renderCallback, selectCallback = options.selectCallback, maxResults = options.maxResults, minQueryLength = options.minQueryLength;
       this.url = url;
       this.types = types;
-      this.maxResults = (typeof options.maxResults === "function" ? options.maxResults(options.maxResults) : void 0) ? void 0 : 5;
-      minQueryLength = (typeof options.minQueryLength === "function" ? options.minQueryLength(options.minQueryLength) : void 0) ? void 0 : 1;
+      this.maxResults = maxResults;
       this.xhr = null;
       this.suggestions = new SuggestionCollection(renderCallback, selectCallback);
       this.query = new Query(minQueryLength);

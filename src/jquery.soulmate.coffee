@@ -149,13 +149,11 @@ class Soulmate
 
     that = this
     
-    {url, types, renderCallback, selectCallback} = options
+    {url, types, renderCallback, selectCallback, maxResults, minQueryLength} = options
     
     @url              = url
     @types            = types
-
-    @maxResults       = if options.maxResults? options.maxResults         else 5
-    minQueryLength    = if options.minQueryLength? options.minQueryLength else 1
+    @maxResults       = maxResults
     
     @xhr              = null
 

@@ -73,7 +73,7 @@ body{
   @include border-radius(4px);
   
   &:focus{ 
-    outline: none; 
+//    outline: none; 
   }
 }
 
@@ -149,9 +149,9 @@ body{
 }
 
 #footer {
-  margin-top: 150px;
+  margin-top: 40px;
   font-family: $helvetica;
-  font-size: 12px;
+  font-size: 13px;
   color: #444;
   text-align: center;
   a {

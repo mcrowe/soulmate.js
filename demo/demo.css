@@ -26,8 +26,6 @@ body {
   -o-border-radius: 4px;
   -khtml-border-radius: 4px;
   border-radius: 4px; }
-  #search-input:focus {
-    outline: none; }
 
 #soulmate {
   background-color: #fafafa;
@@ -117,9 +115,9 @@ body {
       clear: both; }
 
 #footer {
-  margin-top: 150px;
+  margin-top: 40px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   color: #444;
   text-align: center; }
   #footer a {
