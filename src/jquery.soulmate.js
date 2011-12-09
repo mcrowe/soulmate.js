@@ -183,7 +183,7 @@
       url = options.url, types = options.types, renderCallback = options.renderCallback, selectCallback = options.selectCallback;
       this.url = url;
       this.types = types;
-      this.maxResults = (typeof options.maxResults === "function" ? options.maxResults(options.maxResults) : void 0) ? void 0 : 8;
+      this.maxResults = (typeof options.maxResults === "function" ? options.maxResults(options.maxResults) : void 0) ? void 0 : 5;
       minQueryLength = (typeof options.minQueryLength === "function" ? options.minQueryLength(options.minQueryLength) : void 0) ? void 0 : 1;
       this.xhr = null;
       this.suggestions = new SuggestionCollection(renderCallback, selectCallback);

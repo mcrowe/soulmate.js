@@ -154,7 +154,7 @@ class Soulmate
     @url              = url
     @types            = types
 
-    @maxResults       = if options.maxResults? options.maxResults         else 8
+    @maxResults       = if options.maxResults? options.maxResults         else 5
     minQueryLength    = if options.minQueryLength? options.minQueryLength else 1
     
     @xhr              = null

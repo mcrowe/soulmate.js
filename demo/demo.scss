@@ -38,26 +38,37 @@ $lucida: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu 
   }
 }
 
-$suggestionWidth: 314px;
-$inputWidth: 406px;
+$suggestionWidth: 490px;
+$inputWidth: 600px;
+$soulmateWidth: $inputWidth - 21px;
 
 html {
-  background-color: #eee;
+  background-color: #9fbb9d;
+  background: url(ios-linen-3.jpg);
 }
 
 body{
-  width: 406px;
-  margin: 200px auto;
+  width: $inputWidth;
+  margin: 0 auto;
+}
+
+#logo-link {
+  display: block;
+  margin: 140px 0 30px;
+  text-align: center;
+}
+
+#logo {
 }
 
 #search-input{ 
-  border: 1px solid #bbb;
+  border: 1px solid #999;
   color: #545C5F;
   font-family: $helvetica;
   font-size: 20px;
   letter-spacing: 0.5px;
   margin: 0;
-  padding: 8px 10px 6px;
+  padding: 12px 12px 10px;
   width: $inputWidth;
   @include border-radius(4px);
   
@@ -67,48 +78,51 @@ body{
 }
 
 #soulmate {
-  background-color: white;
+  background-color: #fafafa;
+  border: 1px solid #bbb;
   display: none;
   font: 12px/14px $helvetica;
   font-weight: normal;
   list-style: none;
-  margin: 0;
+  margin: 0 0 0 10px;
   padding: 0;
   position: absolute;
   text-shadow: 0 0 0 white;
-  top: 242px;
-  width: $inputWidth - 1px;
+  top: 306px;
+  width: $soulmateWidth;
   z-index: 1000;
   @include border-radius(4px);
-  @include box-shadow(0, 2px, 8px, rgba(0,0,0,.3));
+  @include box-shadow(0, 4px, 10px, rgba(0,0,0,.2));
     
   .soulmate-type-container {
     border-top: 1px solid #ddd;
-    
     &:first-child {
       border-top: none;
     }
   }
   
   .soulmate-type-suggestions {
-    border-right: 1px solid #ddd;
-    float: left;
+    border-left: 1px solid #ddd;
+    float: right;
     list-style: none;
     padding: 5px 0;
     width: $suggestionWidth;
+    letter-spacing: 0.5px;
   }
   
   .soulmate-suggestion {
-    color: #333;
+    color: #111;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 12px;
+    font-weight: 500;
+    font-size: 13px;
     padding: 5px 0 6px 12px;
     text-decoration: none;
 
     &.focus{
       color: white;
+      margin-left: -1px;
       margin-right: -1px;
+      padding-left: 13px;
       position: relative;
       text-shadow: 0 1px 1px #32629b;
       z-index: 1;
@@ -118,18 +132,33 @@ body{
   }
   
   .soulmate-type {
-    background-color: #fafafa;
+    background-color: white;
     color: #333;
-    font-family: $lucida;
-    font-size: 9px;
-    letter-spacing: 1px;
-    margin-left: $suggestionWidth;
-    padding: 10px 0 0 10px;
-    text-align: left;
-    text-transform: uppercase;
+    font-family: $helvetica;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    margin-right: $suggestionWidth;
+    padding: 10px 10px 0 10px;
+    text-align: right;
+    text-transform: capitalize;
     vertical-align: top;
     @include border-radius(5px);
     @include clearfix();
   }
   
+}
+
+#footer {
+  margin-top: 150px;
+  font-family: $helvetica;
+  font-size: 12px;
+  color: #444;
+  text-align: center;
+  a {
+    color: #000;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
