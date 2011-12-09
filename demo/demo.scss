@@ -27,7 +27,16 @@ $lucida: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu 
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#{$top-color},endColorstr=#{$bottom-color});
 }
 
-
+@mixin clearfix {
+  zoom: 1;
+  &:before, &:after {
+    content: "";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+}
 
 html {
   background-color: #eee;
@@ -47,8 +56,79 @@ body{
   margin: 0;
   padding: 8px 10px 6px;
   width: 406px;
+  @include border-radius(4px);
   &:focus{ outline: none; }
 }
+
+#soulmate {
+  background-color: white;
+  display: none;
+  font: 12px/14px $helvetica;
+  font-weight: normal;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  text-shadow: 0 0 0 white;
+  top: 242px;
+  width: 405px;
+  z-index: 1000;
+  @include border-radius(4px);
+  @include box-shadow(0, 2px, 8px, rgba(0,0,0,.3));
+    
+  .soulmate-type-container {
+    border-top: 1px solid #ddd;
+    
+    &:first-child {
+      border-top: none;
+    }
+  }
+  
+  .soulmate-type-suggestions {
+    border-right: 1px solid #ddd;
+    float: left;
+    list-style: none;
+    padding: 5px 0;
+    width: 314px;
+  }
+  
+  .soulmate-suggestion {
+    color: #333;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 5px 12px;
+    text-decoration: none;
+
+    &.focus{
+      color: white;
+      margin-right: -1px;
+      padding-right: 9px;
+      position: relative;
+      text-shadow: 0 1px 1px #32629b;
+      z-index: 1;
+      @include box-shadow(0, 1px, 2px , rgba(0,0,0,0.3));
+      @include vertical-gradient(#444444, #545454);
+    }
+  }
+  
+  .soulmate-type {
+    background-color: #fafafa;
+    color: #333;
+    font-family: $lucida;
+    font-size: 9px;
+    letter-spacing: 1px;
+    margin-left: 314px;
+    padding: 10px 13px 0 10px;
+    text-align: left;
+    text-transform: uppercase;
+    vertical-align: top;
+    @include border-radius(5px);
+    @include clearfix();
+  }
+  
+}
+
 
 #autocomplete {
   background-color: white;
@@ -103,7 +183,6 @@ body{
   .result {
     color: #346caf;
     cursor: pointer;
-    display: block;
     padding: 5px 12px;
     text-decoration: none;
 
@@ -112,9 +191,10 @@ body{
       padding-right: 9px;
       position: relative;
       z-index: 1;
-      @include vertical-gradient(#444444, #545454);
-      @include box-shadow(0, 1px, 2px , rgba(0,0,0,0.3));
-      
+//      @include vertical-gradient(#444444, #945454);
+      background-color: red; 
+//      @include box-shadow(0, 1px, 2px , rgba(0,0,0,0.3));
+//      @include box-shadow(0, 5px, 5px , rgba(0,0,0,1));
       .result-title {
         color: white;
         text-shadow: 0 1px 1px #32629b;

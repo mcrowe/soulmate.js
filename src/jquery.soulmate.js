@@ -1,5 +1,5 @@
 (function() {
-  var $, Query, Soulmate, Suggestion, SuggestionCollection, render, select;
+  var $, Query, Soulmate, Suggestion, SuggestionCollection;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   $ = jQuery;
   Query = (function() {
@@ -58,7 +58,7 @@
       return this.element().removeClass('focus');
     };
     Suggestion.prototype.render = function(callback) {
-      return "<span id=\"" + this.id + "\" class=\"result\">\n  <span class=\"result-title\">\n    " + (callback(this.term, this.data, this.type)) + "\n  </span>\n</span>";
+      return "<li id=\"" + this.id + "\" class=\"soulmate-suggestion\">\n  " + (callback(this.term, this.data, this.type)) + "\n</li>";
     };
     Suggestion.prototype.element = function() {
       return $('#' + this.id);
@@ -73,18 +73,18 @@
       this.suggestions = [];
     }
     SuggestionCollection.prototype.update = function(results) {
-      var i, suggestion, type, typeSuggestions, _results;
+      var i, result, type, typeResults, _results;
       this.suggestions = [];
       i = 0;
       _results = [];
       for (type in results) {
-        typeSuggestions = results[type];
+        typeResults = results[type];
         _results.push((function() {
           var _i, _len, _results2;
           _results2 = [];
-          for (_i = 0, _len = typeSuggestions.length; _i < _len; _i++) {
-            suggestion = typeSuggestions[_i];
-            this.suggestions.push(new Suggestion(i, suggestion.term, suggestion.data, type));
+          for (_i = 0, _len = typeResults.length; _i < _len; _i++) {
+            result = typeResults[_i];
+            this.suggestions.push(new Suggestion(i, result.term, result.data, type));
             _results2.push(i += 1);
           }
           return _results2;
@@ -104,27 +104,25 @@
       return _results;
     };
     SuggestionCollection.prototype.render = function() {
-      var html, suggestion, type, typeIndex, _i, _len, _ref;
-      html = '';
+      var h, suggestion, type, _i, _len, _ref;
+      h = '';
       if (this.suggestions.length) {
         type = null;
-        typeIndex = -1;
         _ref = this.suggestions;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           suggestion = _ref[_i];
           if (suggestion.type !== type) {
             if (type !== null) {
-              html += this._renderTypeEnd(type);
+              h += this._renderTypeEnd(type);
             }
             type = suggestion.type;
-            typeIndex += 1;
-            html += this._renderTypeStart(typeIndex);
+            h += this._renderTypeStart();
           }
-          html += this._renderSuggestion(suggestion);
+          h += this._renderSuggestion(suggestion);
         }
-        html += this._renderTypeEnd(type);
+        h += this._renderTypeEnd(type);
       }
-      return html;
+      return h;
     };
     SuggestionCollection.prototype.count = function() {
       return this.suggestions.length;
@@ -156,13 +154,11 @@
         return this.suggestions[this.focusedIndex].select(this.selectCallback);
       }
     };
-    SuggestionCollection.prototype._renderTypeStart = function(i) {
-      var rowClass;
-      rowClass = i === 0 ? 'first-row' : '';
-      return "<tr class=\"" + rowClass + "\">\n  <td class='results-container'>\n    <div class='results'>";
+    SuggestionCollection.prototype._renderTypeStart = function() {
+      return "<li class=\"soulmate-type-container\">\n  <ul class=\"soulmate-type-suggestions\">";
     };
     SuggestionCollection.prototype._renderTypeEnd = function(type) {
-      return "    </div>\n  </td>\n  <td class='results-label'>" + type + "</td>\n</tr>";
+      return "  </ul>\n  <div class=\"soulmate-type\">" + type + "</div>\n</li>";
     };
     SuggestionCollection.prototype._renderSuggestion = function(suggestion) {
       return suggestion.render(this.renderCallback);
@@ -192,10 +188,8 @@
       this.xhr = null;
       this.suggestions = new SuggestionCollection(renderCallback, selectCallback);
       this.query = new Query(minQueryLength);
-      $("<div id='autocomplete>\n  <table>\n    <tbody>\n    </tbody>\n  </table>\n</div>").insertAfter(this.input);
-      this.container = $('#autocomplete');
-      this.contents = $('tbody', this.container);
-      this.container.delegate('.result', {
+      this.container = $('<ul id="soulmate">').insertAfter(this.input);
+      this.container.delegate('.soulmate-suggestion', {
         mouseover: function() {
           return that.suggestions.focusElement(this);
         },
@@ -280,7 +274,7 @@
     Soulmate.prototype.update = function(results) {
       this.suggestions.update(results);
       if (this.suggestions.count() > 0) {
-        this.contents.html($(this.suggestions.render()));
+        this.container.html($(this.suggestions.render()));
         return this.showContainer();
       } else {
         this.query.markEmpty();
@@ -290,18 +284,7 @@
     return Soulmate;
   })();
   $.fn.soulmate = function(options) {
-    return new Soulmate($(this), options);
+    new Soulmate($(this), options);
+    return $(this);
   };
-  render = function(term, data, type) {
-    return term;
-  };
-  select = function(term, data, type) {
-    return console.log("Selected " + term);
-  };
-  $('#search-input').soulmate({
-    url: 'http://soulmate.ogglexxx.com',
-    types: ['categories', 'pornstars'],
-    renderCallback: render,
-    selectCallback: select
-  });
 }).call(this);

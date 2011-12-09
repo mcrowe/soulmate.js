@@ -47,11 +47,9 @@ class Suggestion
     
   render: (callback) ->
     """
-      <span id="#{@id}" class="result">
-        <span class="result-title">
-          #{callback( @term, @data, @type)}
-        </span>
-      </span>
+      <li id="#{@id}" class="soulmate-suggestion">
+        #{callback( @term, @data, @type)}
+      </li>
     """
 
   element: ->
@@ -66,39 +64,36 @@ class SuggestionCollection
     @suggestions = []
     i = 0
     
-    for type, typeSuggestions of results
-      for suggestion in typeSuggestions
-        @suggestions.push( new Suggestion(i, suggestion.term, suggestion.data, type) )
+    for type, typeResults of results
+      for result in typeResults
+        @suggestions.push( new Suggestion(i, result.term, result.data, type) )
         i += 1
             
   blurAll: ->
     @focusedIndex = -1
     suggestion.blur() for suggestion in @suggestions
 
-  render: ->
-    
-    html = ''
+  render: -> 
+    h = ''
     
     if @suggestions.length
     
       type = null
-      typeIndex = -1
     
       for suggestion in @suggestions
         if suggestion.type != type
-          if type != null
-            html += @_renderTypeEnd( type )
+
+          h += @_renderTypeEnd( type ) unless type == null
             
           type = suggestion.type
-          typeIndex += 1
           
-          html += @_renderTypeStart( typeIndex )
+          h += @_renderTypeStart()
           
-        html += @_renderSuggestion( suggestion )
+        h += @_renderSuggestion( suggestion )
     
-      html += @_renderTypeEnd(type)
+      h += @_renderTypeEnd( type )
       
-    html
+    return h
   
   count: ->
     @suggestions.length
@@ -106,14 +101,16 @@ class SuggestionCollection
   focus: (i) ->        
     if i < @count()
       @blurAll()
+      
       if i < 0
         @focusedIndex = -1
+        
       else
         @suggestions[i].focus()
         @focusedIndex = i
   
   focusElement: (element) ->
-    index = parseInt($(element).attr('id'))
+    index = parseInt( $(element).attr('id') )
     @focus( index )
 
   focusNext: ->
@@ -128,20 +125,17 @@ class SuggestionCollection
   
   # PRIVATE
   
-  _renderTypeStart: (i) ->
-    rowClass = if i == 0 then 'first-row' else ''
+  _renderTypeStart: ->
     """
-      <tr class="#{rowClass}">
-        <td class='results-container'>
-          <div class='results'>
+      <li class="soulmate-type-container">
+        <ul class="soulmate-type-suggestions">
     """
   
   _renderTypeEnd: (type) ->
     """
-          </div>
-        </td>
-        <td class='results-label'>#{type}</td>
-      </tr>
+        </ul>
+        <div class="soulmate-type">#{type}</div>
+      </li>
     """
   
   _renderSuggestion: (suggestion) ->
@@ -168,20 +162,9 @@ class Soulmate
     @suggestions      = new SuggestionCollection( renderCallback, selectCallback )  
     @query            = new Query( minQueryLength )  
         
-    $("""
-        <div id='autocomplete>
-          <table>
-            <tbody>
-            </tbody>
-          </table>
-        </div>
-      """
-    ).insertAfter(@input)
-    
-    @container = $('#autocomplete')
-    @contents = $('tbody', @container)
+    @container = $('<ul id="soulmate">').insertAfter(@input)
       
-    @container.delegate('.result',
+    @container.delegate('.soulmate-suggestion',
       mouseover: -> that.suggestions.focusElement( this )
       click: (event) -> 
         event.preventDefault()
@@ -275,7 +258,7 @@ class Soulmate
     
     if @suggestions.count() > 0
 
-      @contents.html( $(@suggestions.render()) )
+      @container.html( $(@suggestions.render()) )
               
       @showContainer()
 
@@ -286,16 +269,4 @@ class Soulmate
 
 $.fn.soulmate = (options) ->
   new Soulmate($(this), options)
-
-render = (term, data, type) ->
-  term
-  
-select = (term, data, type) ->
-  console.log("Selected #{term}")
-      
-$('#search-input').soulmate(
-  url:            'http://soulmate.ogglexxx.com', 
-  types:          ['categories', 'pornstars'], 
-  renderCallback: render, 
-  selectCallback: select
-)
+  return $(this)
