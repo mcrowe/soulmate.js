@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title>Jasmine Test Runner</title>
+
+  <!-- load jquery -->
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js" type="text/javascript"></script>
+  
+  <!-- load jasmine -->
+  <link rel="stylesheet" type="text/css" href="helpers/jasmine-1.0.2/jasmine.css">
+  <script type="text/javascript" src="helpers/jasmine-1.0.2/jasmine.js"></script>
+  <script type="text/javascript" src="helpers/jasmine-1.0.2/jasmine-html.js"></script>
+  
+  <!-- load jasmine-jquery -->
+  <script type="text/javascript" src="helpers/jasmine-jquery.js"></script>
+
+  <!-- include source files here... -->
+  <script type="text/javascript" src="../src/jquery.soulmate.js"></script>
+
+  <!-- include spec files here... -->
+  <script type="text/javascript" src="SpecHelper.js"></script>
+  <script type="text/javascript" src="jquery.soulmate_spec.js"></script>
+
+</head>
+<body>
+
+<!-- run the specs -->
+<script type="text/javascript">
+  jasmine.getEnv().addReporter(new jasmine.TrivialReporter());
+  jasmine.getEnv().execute();
+</script>
+
+</body>
+</html>
