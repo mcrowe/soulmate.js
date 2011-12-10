@@ -81,12 +81,11 @@ class SuggestionCollection
       type = null
     
       for suggestion in @suggestions
+
         if suggestion.type != type
 
           h += @_renderTypeEnd( type ) unless type == null
-            
           type = suggestion.type
-          
           h += @_renderTypeStart()
           
         h += @_renderSuggestion( suggestion )
@@ -255,22 +254,20 @@ class Soulmate
     @suggestions.update(results)
     
     if @suggestions.count() > 0
-
       @container.html( $(@suggestions.render()) )
-              
       @showContainer()
 
     else
       @query.markEmpty()
-
       @hideContainer()
 
 $.fn.soulmate = (options) ->
   new Soulmate($(this), options)
   return $(this)
 
-window._test = {}
-window._test.Query = Query
-window._test.Suggestion = Suggestion
-window._test.SuggestionCollection = SuggestionCollection
-window._test.Soulmate = Soulmate
+window._test = {
+  Query: Query
+  Suggestion: Suggestion
+  SuggestionCollection: SuggestionCollection
+  Soulmate: Soulmate
+}

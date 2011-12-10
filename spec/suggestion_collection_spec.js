@@ -83,20 +83,20 @@
           s1 = collection.suggestions[0];
           return s2 = collection.suggestions[4];
         });
-        it('should add a suggestion for each suggestion in the results', function() {
+        it('adds a suggestion for each suggestion in the results', function() {
           return expect(collection.count()).toEqual(6);
         });
-        it('should set the right terms', function() {
+        it('sets the right terms', function() {
           expect(s1.term).toEqual('2012 Super Bowl');
           return expect(s2.term).toEqual('The Borgata Event Center ');
         });
-        it('should set the right data', function() {
+        it('sets the right data', function() {
           expect(s1.data).toEqual({});
           return expect(s2.data).toEqual({
             'url': 'http://www.google.com'
           });
         });
-        return it('should set the right types', function() {
+        return it('sets the right types', function() {
           expect(s1.type).toEqual('event');
           return expect(s2.type).toEqual('venue');
         });
@@ -108,8 +108,27 @@
           collection.update(response.results);
           return rendered = collection.render();
         });
-        return it('should be long', function() {
-          return expect(rendered.length).toBeGreaterThan(100);
+        it('renders all of the suggestions', function() {
+          return expect($('.soulmate-suggestion', $(rendered)).length).toEqual(6);
+        });
+        it('renders the suggestions for each type inside a ul', function() {
+          var typeLists;
+          typeLists = $('ul.soulmate-type-suggestions', $(rendered));
+          expect(typeLists.length).toEqual(2);
+          return typeLists.each(function() {
+            return expect($('.soulmate-suggestion', $(this)).length).toEqual(3);
+          });
+        });
+        it('renders a list item container for each type', function() {
+          return expect($(rendered).filter('li.soulmate-type-container').length).toEqual(2);
+        });
+        return it('renders each type as a div with a class of "soulmate-type"', function() {
+          var types;
+          types = $('div.soulmate-type', $(rendered));
+          expect(types.length).toEqual(2);
+          return types.each(function() {
+            return expect($(this).text()).toMatch(/event|venue/);
+          });
         });
       });
     });

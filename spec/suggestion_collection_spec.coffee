@@ -50,21 +50,20 @@ describe 'SuggestionCollection', ->
         s1 = collection.suggestions[0]
         s2 = collection.suggestions[4]
     
-      it 'should add a suggestion for each suggestion in the results', ->
+      it 'adds a suggestion for each suggestion in the results', ->
         expect( collection.count() ).toEqual( 6 )
     
-      it 'should set the right terms', ->
+      it 'sets the right terms', ->
         expect( s1.term ).toEqual( '2012 Super Bowl' )
         expect( s2.term ).toEqual( 'The Borgata Event Center ' )
     
-      it 'should set the right data', ->
+      it 'sets the right data', ->
         expect( s1.data ).toEqual( {} )
         expect( s2.data ).toEqual( {'url': 'http://www.google.com'} )
     
-      it 'should set the right types', ->
+      it 'sets the right types', ->
         expect( s1.type ).toEqual( 'event' )
         expect( s2.type ).toEqual( 'venue' )
-
 
     describe '#render', ->
       
@@ -74,11 +73,24 @@ describe 'SuggestionCollection', ->
         collection.update( response.results )
         rendered = collection.render()
       
-      it 'should be long', ->
-        expect( rendered.length ).toBeGreaterThan( 100 )
-        
-      # !! WRITE ACTUAL SPECS FOR THE RENDER METHOD, THEN SPEC THE ACTUAL SOULMATE OBJECT!!      
+      it 'renders all of the suggestions', ->
+        expect( $('.soulmate-suggestion', $(rendered)).length ).toEqual( 6 )
       
+      it 'renders the suggestions for each type inside a ul', ->
+        typeLists = $('ul.soulmate-type-suggestions', $(rendered))
+        expect( typeLists.length ).toEqual( 2 )
+        typeLists.each ->
+          expect( $('.soulmate-suggestion', $(this)).length ).toEqual( 3 )
+      
+      it 'renders a list item container for each type', ->
+        expect( $(rendered).filter('li.soulmate-type-container').length ).toEqual( 2 )
+        
+      it 'renders each type as a div with a class of "soulmate-type"', ->
+        types = $('div.soulmate-type', $(rendered) )
+        expect( types.length ).toEqual( 2 )
+        types.each ->
+          expect( $(this).text() ).toMatch( /event|venue/ )
+              
   describe 'with mock suggestions', ->
     
     beforeEach ->
