@@ -29,7 +29,91 @@
         return expect(collection.suggestions).toEqual([]);
       });
     });
-    return describe('with suggestions', function() {
+    describe('with real data', function() {
+      var response;
+      response = {
+        "results": {
+          "event": [
+            {
+              "data": {},
+              "term": "2012 Super Bowl",
+              "id": 673579,
+              "score": 8546.76
+            }, {
+              "data": {},
+              "term": "2012 Rose Bowl (Oregon vs Wisconsin)",
+              "id": 614958,
+              "score": 1139.12
+            }, {
+              "data": {},
+              "term": "The Book of Mormon - New York",
+              "id": 588497,
+              "score": 965.756
+            }
+          ],
+          "venue": [
+            {
+              "data": {},
+              "term": "Opera House (Boston)",
+              "id": 2501,
+              "score": 318.21
+            }, {
+              "data": {
+                'url': 'http://www.google.com'
+              },
+              "term": "The Borgata Event Center ",
+              "id": 435,
+              "score": 263.579
+            }, {
+              "data": {},
+              "term": "BOK Center",
+              "id": 85,
+              "score": 225.843
+            }
+          ]
+        },
+        "term": "bo"
+      };
+      describe('#update', function() {
+        var s1, s2;
+        s1 = null;
+        s2 = null;
+        beforeEach(function() {
+          collection.update(response.results);
+          s1 = collection.suggestions[0];
+          return s2 = collection.suggestions[4];
+        });
+        it('should add a suggestion for each suggestion in the results', function() {
+          return expect(collection.count()).toEqual(6);
+        });
+        it('should set the right terms', function() {
+          expect(s1.term).toEqual('2012 Super Bowl');
+          return expect(s2.term).toEqual('The Borgata Event Center ');
+        });
+        it('should set the right data', function() {
+          expect(s1.data).toEqual({});
+          return expect(s2.data).toEqual({
+            'url': 'http://www.google.com'
+          });
+        });
+        return it('should set the right types', function() {
+          expect(s1.type).toEqual('event');
+          return expect(s2.type).toEqual('venue');
+        });
+      });
+      return describe('#render', function() {
+        var rendered;
+        rendered = null;
+        beforeEach(function() {
+          collection.update(response.results);
+          return rendered = collection.render();
+        });
+        return it('should be long', function() {
+          return expect(rendered.length).toBeGreaterThan(100);
+        });
+      });
+    });
+    return describe('with mock suggestions', function() {
       beforeEach(function() {
         var i, _results;
         _results = [];
@@ -68,6 +152,53 @@
             _results = [];
             for (i = 0; i <= 9; i++) {
               _results.push(expect(collection.suggestions[i].select).not.toHaveBeenCalled());
+            }
+            return _results;
+          });
+        });
+      });
+      describe('#focus', function() {
+        describe('with a number between 0 and the number of suggestions', function() {
+          beforeEach(function() {
+            spyOn(collection, 'blurAll');
+            return collection.focus(3);
+          });
+          it('should blur all the suggestions', function() {
+            return expect(collection.blurAll).toHaveBeenCalled();
+          });
+          it('should focus the requested suggestion', function() {
+            return expect(collection.suggestions[3].focus).toHaveBeenCalled();
+          });
+          return it('should set the focusedIndex to refer to the requested suggestion', function() {
+            return expect(collection.focusedIndex).toEqual(3);
+          });
+        });
+        describe('with a number larger than the number of suggestions', function() {
+          return it('should do nothing', function() {
+            var i;
+            spyOn(collection, 'blurAll');
+            collection.focus(37);
+            expect(collection.focusedIndex).not.toEqual(37);
+            for (i = 0; i <= 9; i++) {
+              expect(collection.suggestions[i].focus).not.toHaveBeenCalled();
+            }
+            return expect(collection.blurAll).not.toHaveBeenCalled();
+          });
+        });
+        return describe('with a number smaller than 0', function() {
+          beforeEach(function() {
+            spyOn(collection, 'blurAll');
+            return collection.focus(-2);
+          });
+          it('should blur all the suggestions', function() {
+            return expect(collection.blurAll).toHaveBeenCalled();
+          });
+          return it('should do nothing else', function() {
+            var i, _results;
+            expect(collection.focusedIndex).not.toEqual(-2);
+            _results = [];
+            for (i = 0; i <= 9; i++) {
+              _results.push(expect(collection.suggestions[i].focus).not.toHaveBeenCalled());
             }
             return _results;
           });

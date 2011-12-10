@@ -22,8 +22,64 @@ describe 'SuggestionCollection', ->
       
     it 'should initialize the suggestions to an empty array', ->
       expect( collection.suggestions ).toEqual( [] )
+
+  describe 'with real data', ->
+    
+    response = {
+      "results":
+        "event": [
+          {"data":{},"term":"2012 Super Bowl","id":673579,"score":8546.76},
+          {"data":{},"term":"2012 Rose Bowl (Oregon vs Wisconsin)","id":614958,"score":1139.12},
+          {"data":{},"term":"The Book of Mormon - New York","id":588497,"score":965.756}
+        ],
+        "venue": [
+          {"data":{},"term":"Opera House (Boston)","id":2501,"score":318.21},
+          {"data":{'url': 'http://www.google.com'},"term":"The Borgata Event Center ","id":435,"score":263.579},
+          {"data":{},"term":"BOK Center","id":85,"score":225.843}
+        ]
+      "term":"bo"
+    }
+
+    describe '#update', ->
+    
+      s1 = null
+      s2 = null
+    
+      beforeEach ->    
+        collection.update( response.results )
+        s1 = collection.suggestions[0]
+        s2 = collection.suggestions[4]
+    
+      it 'should add a suggestion for each suggestion in the results', ->
+        expect( collection.count() ).toEqual( 6 )
+    
+      it 'should set the right terms', ->
+        expect( s1.term ).toEqual( '2012 Super Bowl' )
+        expect( s2.term ).toEqual( 'The Borgata Event Center ' )
+    
+      it 'should set the right data', ->
+        expect( s1.data ).toEqual( {} )
+        expect( s2.data ).toEqual( {'url': 'http://www.google.com'} )
+    
+      it 'should set the right types', ->
+        expect( s1.type ).toEqual( 'event' )
+        expect( s2.type ).toEqual( 'venue' )
+
+
+    describe '#render', ->
       
-  describe 'with suggestions', ->
+      rendered = null
+      
+      beforeEach ->
+        collection.update( response.results )
+        rendered = collection.render()
+      
+      it 'should be long', ->
+        expect( rendered.length ).toBeGreaterThan( 100 )
+        
+      # !! WRITE ACTUAL SPECS FOR THE RENDER METHOD, THEN SPEC THE ACTUAL SOULMATE OBJECT!!      
+      
+  describe 'with mock suggestions', ->
     
     beforeEach ->
       for i in [0..9]
@@ -55,6 +111,47 @@ describe 'SuggestionCollection', ->
           collection.selectFocused()
           for i in [0..9]
             expect( collection.suggestions[i].select ).not.toHaveBeenCalled()
+    
+    describe '#focus', ->
+      
+      describe 'with a number between 0 and the number of suggestions', ->
+        
+        beforeEach ->
+          spyOn( collection, 'blurAll' )
+          collection.focus( 3 )
+        
+        it 'should blur all the suggestions', ->
+          expect( collection.blurAll ).toHaveBeenCalled()
+        
+        it 'should focus the requested suggestion', ->
+          expect( collection.suggestions[3].focus ).toHaveBeenCalled()
+        
+        it 'should set the focusedIndex to refer to the requested suggestion', ->
+          expect( collection.focusedIndex ).toEqual( 3 )
+          
+      describe 'with a number larger than the number of suggestions', ->
+        
+        it 'should do nothing', ->
+          spyOn( collection, 'blurAll' )
+          collection.focus( 37 )
+          expect( collection.focusedIndex ).not.toEqual( 37 )
+          for i in [0..9]
+            expect( collection.suggestions[i].focus ).not.toHaveBeenCalled()
+          expect( collection.blurAll ).not.toHaveBeenCalled()
+        
+      describe 'with a number smaller than 0', ->
+        
+        beforeEach ->
+          spyOn( collection, 'blurAll' )
+          collection.focus( -2 )          
+        
+        it 'should blur all the suggestions', ->
+          expect( collection.blurAll ).toHaveBeenCalled()  
+        
+        it 'should do nothing else', ->
+          expect( collection.focusedIndex ).not.toEqual( -2 )
+          for i in [0..9]
+            expect( collection.suggestions[i].focus ).not.toHaveBeenCalled()        
             
     describe 'focus helpers', ->
       
@@ -79,3 +176,4 @@ describe 'SuggestionCollection', ->
         it 'should focus the suggestion whos element matches the one provided', ->
           collection.focusElement( $('<div id="73-soulmate-suggestion">') )
           expect( collection.focus ).toHaveBeenCalledWith( 73 )
+    
