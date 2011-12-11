@@ -42,46 +42,7 @@
         return describe('with results', function() {
           var update;
           update = function() {
-            return soulmate.update({
-              "event": [
-                {
-                  "data": {},
-                  "term": "2012 Super Bowl",
-                  "id": 673579,
-                  "score": 8546.76
-                }, {
-                  "data": {},
-                  "term": "2012 Rose Bowl (Oregon vs Wisconsin)",
-                  "id": 614958,
-                  "score": 1139.12
-                }, {
-                  "data": {},
-                  "term": "The Book of Mormon - New York",
-                  "id": 588497,
-                  "score": 965.756
-                }
-              ],
-              "venue": [
-                {
-                  "data": {},
-                  "term": "Opera House (Boston)",
-                  "id": 2501,
-                  "score": 318.21
-                }, {
-                  "data": {
-                    'url': 'http://www.google.com'
-                  },
-                  "term": "The Borgata Event Center ",
-                  "id": 435,
-                  "score": 263.579
-                }, {
-                  "data": {},
-                  "term": "BOK Center",
-                  "id": 85,
-                  "score": 225.843
-                }
-              ]
-            });
+            return soulmate.update(fixtures.responseWithResults.results);
           };
           it('shows the container', function() {
             return expect(function() {
@@ -97,10 +58,7 @@
       return describe('with empty results', function() {
         var update;
         update = function() {
-          return soulmate.update({
-            "event": [],
-            "venue": []
-          });
+          return soulmate.update(fixtures.responseWithNoResults.results);
         };
         it('hides the container', function() {
           return expect(function() {
@@ -185,7 +143,7 @@
         });
       });
     });
-    return describe('releasing a key in the input field', function() {
+    describe('releasing a key in the input field', function() {
       var keyUp;
       keyUp = function() {
         return soulmate.input.trigger('keyup');
@@ -237,5 +195,23 @@
         });
       });
     });
+    describe('#fetchResults', function() {});
+    describe('mousing over the input field', function() {
+      return it('should blur all the suggestions', function() {
+        var mouseOverInput;
+        mouseOverInput = function() {
+          return soulmate.input.trigger('mouseover');
+        };
+        return expect(mouseOverInput).toCall(soulmate.suggestions, 'blurAll');
+      });
+    });
+    describe('mousing over a suggestion', function() {
+      return it('should focus that suggestion', function() {});
+    });
+    describe('clicking a suggestion', function() {
+      it('refocuses the input field so it remains active', function() {});
+      return it('selects the focused suggestion', function() {});
+    });
+    return it('adds a container to the dom with an id of "soulmate"', function() {});
   });
 }).call(this);

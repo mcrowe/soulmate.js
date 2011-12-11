@@ -44,19 +44,7 @@ describe 'Soulmate', ->
   
       describe 'with results', ->
 
-        update = ->
-          soulmate.update({
-            "event": [
-              {"data":{},"term":"2012 Super Bowl","id":673579,"score":8546.76},
-              {"data":{},"term":"2012 Rose Bowl (Oregon vs Wisconsin)","id":614958,"score":1139.12},
-              {"data":{},"term":"The Book of Mormon - New York","id":588497,"score":965.756}
-            ]
-            "venue": [
-              {"data":{},"term":"Opera House (Boston)","id":2501,"score":318.21},
-              {"data":{'url': 'http://www.google.com'},"term":"The Borgata Event Center ","id":435,"score":263.579},
-              {"data":{},"term":"BOK Center","id":85,"score":225.843}
-            ]            
-          })
+        update = -> soulmate.update( fixtures.responseWithResults.results )
         
         it 'shows the container', ->
           expect( -> update() ).toCall( soulmate, 'showContainer' )
@@ -67,11 +55,7 @@ describe 'Soulmate', ->
   
     describe 'with empty results', ->
 
-      update = ->
-        soulmate.update({
-          "event": []
-          "venue": []          
-        })
+      update = -> soulmate.update( fixtures.responseWithNoResults.results )
 
       it 'hides the container', ->
         expect( -> update() ).toCall( soulmate, 'hideContainer' )
@@ -162,3 +146,25 @@ describe 'Soulmate', ->
         
         it 'should hide the container', ->
           expect( keyUp ).toCall( soulmate, 'hideContainer' )
+          
+  describe '#fetchResults', ->
+
+  describe 'mousing over the input field', ->
+    
+    it 'should blur all the suggestions', ->
+      mouseOverInput = -> soulmate.input.trigger( 'mouseover' )
+      expect( mouseOverInput ).toCall( soulmate.suggestions, 'blurAll' )
+    
+  describe 'mousing over a suggestion', ->
+    
+    it 'should focus that suggestion', ->    
+  
+  describe 'clicking a suggestion', ->
+    
+    it 'refocuses the input field so it remains active', ->
+    it 'selects the focused suggestion', ->
+  
+  it 'adds a container to the dom with an id of "soulmate"', ->      
+          
+    
+        
