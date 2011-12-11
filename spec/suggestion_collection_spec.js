@@ -10,7 +10,7 @@
       return collection = new SuggestionCollection(callback, callback);
     });
     describe('#initialize', function() {
-      it('should set the render and select callbacks', function() {
+      it('sets the render and select callbacks', function() {
         var renderCallback, selectCallback;
         renderCallback = function() {
           return 'render';
@@ -22,10 +22,10 @@
         expect(collection.renderCallback()).toEqual('render');
         return expect(collection.selectCallback()).toEqual('select');
       });
-      it('should initialize the focusedIndex to -1', function() {
+      it('initializes the focusedIndex to -1', function() {
         return expect(collection.focusedIndex).toEqual(-1);
       });
-      return it('should initialize the suggestions to an empty array', function() {
+      return it('initializes the suggestions to an empty array', function() {
         return expect(collection.suggestions).toEqual([]);
       });
     });
@@ -142,12 +142,12 @@
         return _results;
       });
       describe('#count', function() {
-        return it('should return the number of suggestions', function() {
+        return it('returns the number of suggestions', function() {
           return expect(collection.count()).toEqual(10);
         });
       });
       describe('#blurAll', function() {
-        return it('should call blur on all of its suggestions', function() {
+        return it('calls blur on all of its suggestions', function() {
           var i, _results;
           collection.blurAll();
           _results = [];
@@ -159,12 +159,12 @@
       });
       describe('#selectFocused', function() {
         return describe('when a suggestion is focused', function() {
-          it('should call "select" on the suggestion that is focused, with the selectCallback', function() {
+          it('calls "select" on the suggestion that is focused, with the selectCallback', function() {
             collection.focus(1);
             collection.selectFocused();
             return expect(collection.suggestions[1].select).toHaveBeenCalledWith(collection.selectCallback);
           });
-          return it('should do nothing if no suggestion is focused', function() {
+          return it('does nothing if no suggestion is focused', function() {
             var i, _results;
             collection.blurAll();
             collection.selectFocused();
@@ -182,18 +182,18 @@
             spyOn(collection, 'blurAll');
             return collection.focus(3);
           });
-          it('should blur all the suggestions', function() {
+          it('blurs all the suggestions', function() {
             return expect(collection.blurAll).toHaveBeenCalled();
           });
-          it('should focus the requested suggestion', function() {
+          it('focuses the requested suggestion', function() {
             return expect(collection.suggestions[3].focus).toHaveBeenCalled();
           });
-          return it('should set the focusedIndex to refer to the requested suggestion', function() {
+          return it('sets the focusedIndex to refer to the requested suggestion', function() {
             return expect(collection.focusedIndex).toEqual(3);
           });
         });
         describe('with a number larger than the number of suggestions', function() {
-          return it('should do nothing', function() {
+          return it('does nothing', function() {
             var i;
             spyOn(collection, 'blurAll');
             collection.focus(37);
@@ -209,10 +209,10 @@
             spyOn(collection, 'blurAll');
             return collection.focus(-2);
           });
-          it('should blur all the suggestions', function() {
+          it('blurs all the suggestions', function() {
             return expect(collection.blurAll).toHaveBeenCalled();
           });
-          return it('should do nothing else', function() {
+          return it('does nothing else', function() {
             var i, _results;
             expect(collection.focusedIndex).not.toEqual(-2);
             _results = [];
@@ -229,19 +229,19 @@
           return spyOn(collection, 'focus');
         });
         describe('#focusNext', function() {
-          return it('should focus the next suggestion', function() {
+          return it('focuses the next suggestion', function() {
             collection.focusNext();
             return expect(collection.focus).toHaveBeenCalledWith(2);
           });
         });
         describe('#focusPrevious', function() {
-          return it('should focus the previous suggestion', function() {
+          return it('focuses the previous suggestion', function() {
             collection.focusPrevious();
             return expect(collection.focus).toHaveBeenCalledWith(0);
           });
         });
         return describe('#focusElement', function() {
-          return it('should focus the suggestion whos element matches the one provided', function() {
+          return it('focuses the suggestion whos element matches the one provided', function() {
             collection.focusElement($('<div id="73-soulmate-suggestion">'));
             return expect(collection.focus).toHaveBeenCalledWith(73);
           });

@@ -179,9 +179,8 @@ class Soulmate
       )
     
   handleKeydown: (event) =>  
-    
     killEvent = true
-    
+
     switch KEYCODES[event.keyCode]
 
       when 'escape'

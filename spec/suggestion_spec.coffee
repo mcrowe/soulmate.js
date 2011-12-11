@@ -10,38 +10,38 @@ describe 'Suggestion', ->
 
   describe '#initialize', ->
     
-    it 'should create a unique id for the suggestion dom element', ->
+    it 'creates a unique id for the suggestion dom element', ->
       expect( suggestion.id ).toEqual( '1-soulmate-suggestion' )
       
-    it 'should set the term, data, and type', ->
+    it 'sets the term, data, and type', ->
       expect( suggestion.term ).toEqual( 'mitch crowe' )
       expect( suggestion.data ).toEqual( {} )
       expect( suggestion.type ).toEqual( 'people' )
   
   describe '#select', ->
     
-    it 'should call the provided callback with the term, data, and type', ->
+    it 'calls the provided callback with the term, data, and type', ->
       callback = jasmine.createSpy()
       suggestion.select( callback )
       expect( callback ).toHaveBeenCalledWith( 'mitch crowe', {}, 'people' )
     
   describe '#render', ->
     
-    it 'should call the provided callback with the term, data, and type', ->
+    it 'calls the provided callback with the term, data, and type', ->
       callback = jasmine.createSpy()
       suggestion.render( callback )
       expect( callback ).toHaveBeenCalledWith( 'mitch crowe', {}, 'people' )  
     
-    it 'should return an li tag as a string', ->
+    it 'returns an li tag as a string', ->
       expect( suggestion.render( callback ) ).toMatch(/<li/)
       
-    it 'should set the class to "soulmate-suggestion"', ->
+    it 'sets the class to "soulmate-suggestion"', ->
       expect( $(suggestion.render( callback )) ).toHaveClass( 'soulmate-suggestion' )
     
-    it 'should set the id to the suggestions id', ->
+    it 'sets the id to the suggestions id', ->
       expect( $(suggestion.render( callback )) ).toHaveId( suggestion.id )
       
-    it 'should set the contents of the li tag to be the return value of the callback function', ->
+    it 'sets the contents of the li tag to be the return value of the callback function', ->
       callback = -> 'turtle'
       expect( suggestion.render( callback ) ).toMatch( /turtle/ )
   
@@ -56,20 +56,20 @@ describe 'Suggestion', ->
   
     describe '#element', ->
       
-      it 'should get a wrapped set of the element rendered by this suggestion', ->
+      it 'gets a wrapped set of the element rendered by this suggestion', ->
         expect( element ).toExist()
         expect( element ).toHaveId( suggestion.id )
         
     describe '#focus', ->
       
-      it 'should add the class "focus" to the element', ->
+      it 'adds the class "focus" to the element', ->
         expect( element ).not.toHaveClass( 'focus' )
         suggestion.focus()
         expect( element ).toHaveClass( 'focus' )
         
     describe '#blur', ->
       
-      it 'should remove the class "focus" from the element', ->
+      it 'removes the class "focus" from the element', ->
         element.addClass( 'focus' )
         suggestion.blur()
         expect( element ).not.toHaveClass( 'focus' )
