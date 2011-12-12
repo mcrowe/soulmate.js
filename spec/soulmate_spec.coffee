@@ -166,5 +166,5 @@ describe 'Soulmate', ->
   
   it 'adds a container to the dom with an id of "soulmate"', ->      
           
-    
+  it 'closes the container when you click outside of it', ->  
         

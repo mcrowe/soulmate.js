@@ -212,6 +212,7 @@
       it('refocuses the input field so it remains active', function() {});
       return it('selects the focused suggestion', function() {});
     });
-    return it('adds a container to the dom with an id of "soulmate"', function() {});
+    it('adds a container to the dom with an id of "soulmate"', function() {});
+    return it('closes the container when you click outside of it', function() {});
   });
 }).call(this);
