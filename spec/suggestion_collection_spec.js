@@ -5,35 +5,32 @@
     var collection;
     collection = null;
     beforeEach(function() {
-      var callback;
-      callback = function() {};
-      return collection = new SuggestionCollection(callback, callback);
+      var nullFunction;
+      nullFunction = function() {};
+      return collection = new SuggestionCollection(nullFunction, nullFunction);
     });
     describe('#initialize', function() {
       it('sets the render and select callbacks', function() {
-        var renderCallback, selectCallback;
+        var renderCallback, selectCallback, withCallbacks;
         renderCallback = function() {
           return 'render';
         };
         selectCallback = function() {
           return 'select';
         };
-        collection = new SuggestionCollection(renderCallback, selectCallback);
-        expect(collection.renderCallback()).toEqual('render');
-        return expect(collection.selectCallback()).toEqual('select');
+        withCallbacks = new SuggestionCollection(renderCallback, selectCallback);
+        expect(withCallbacks.renderCallback()).toEqual('render');
+        return expect(withCallbacks.selectCallback()).toEqual('select');
       });
       it('initializes the focusedIndex to -1', function() {
         return expect(collection.focusedIndex).toEqual(-1);
       });
-      return it('initializes the suggestions to an empty array', function() {
+      it('initializes the suggestions to an empty array', function() {
         return expect(collection.suggestions).toEqual([]);
       });
-    });
-    describe('with real data', function() {
       describe('#update', function() {
         var s1, s2;
-        s1 = null;
-        s2 = null;
+        s1 = s2 = null;
         beforeEach(function() {
           collection.update(fixtures.responseWithResults.results);
           s1 = collection.suggestions[0];
@@ -88,7 +85,7 @@
         });
       });
     });
-    return describe('with mock suggestions', function() {
+    return context('with 10 mock suggestions', function() {
       beforeEach(function() {
         var i, _results;
         _results = [];
@@ -103,7 +100,7 @@
         });
       });
       describe('#blurAll', function() {
-        return it('calls blur on all of its suggestions', function() {
+        return it('calls blur on all of the suggestions', function() {
           var i, _results;
           collection.blurAll();
           _results = [];
@@ -114,15 +111,21 @@
         });
       });
       describe('#selectFocused', function() {
-        return describe('when a suggestion is focused', function() {
-          it('calls "select" on the suggestion that is focused, with the selectCallback', function() {
-            collection.focus(1);
+        context('when a suggestion is focused', function() {
+          beforeEach(function() {
+            return collection.focus(1);
+          });
+          return it('calls "select" on the suggestion that is focused, with the selectCallback', function() {
             collection.selectFocused();
             return expect(collection.suggestions[1].select).toHaveBeenCalledWith(collection.selectCallback);
           });
-          return it('does nothing if no suggestion is focused', function() {
+        });
+        return context('when no suggestion is focused', function() {
+          beforeEach(function() {
+            return collection.blurAll();
+          });
+          return it('does nothing', function() {
             var i, _results;
-            collection.blurAll();
             collection.selectFocused();
             _results = [];
             for (i = 0; i <= 9; i++) {
@@ -133,7 +136,7 @@
         });
       });
       describe('#focus', function() {
-        describe('with a number between 0 and the number of suggestions', function() {
+        context('with 0 <= n < number of suggestions', function() {
           beforeEach(function() {
             spyOn(collection, 'blurAll');
             return collection.focus(3);
@@ -148,7 +151,7 @@
             return expect(collection.focusedIndex).toEqual(3);
           });
         });
-        describe('with a number larger than the number of suggestions', function() {
+        context('with number of suggestions < n', function() {
           return it('does nothing', function() {
             var i;
             spyOn(collection, 'blurAll');
@@ -160,7 +163,7 @@
             return expect(collection.blurAll).not.toHaveBeenCalled();
           });
         });
-        return describe('with a number smaller than 0', function() {
+        return context('with n < 0', function() {
           beforeEach(function() {
             spyOn(collection, 'blurAll');
             return collection.focus(-2);
@@ -179,27 +182,31 @@
           });
         });
       });
-      return describe('focus helpers', function() {
+      return context('focus helpers', function() {
         beforeEach(function() {
-          collection.focus(1);
-          return spyOn(collection, 'focus');
+          return collection.focus(1);
         });
         describe('#focusNext', function() {
           return it('focuses the next suggestion', function() {
-            collection.focusNext();
-            return expect(collection.focus).toHaveBeenCalledWith(2);
+            return expect(function() {
+              return collection.focusNext();
+            }).toCallWith(collection, 'focus', [2]);
           });
         });
         describe('#focusPrevious', function() {
           return it('focuses the previous suggestion', function() {
-            collection.focusPrevious();
-            return expect(collection.focus).toHaveBeenCalledWith(0);
+            return expect(function() {
+              return collection.focusPrevious();
+            }).toCallWith(collection, 'focus', [0]);
           });
         });
         return describe('#focusElement', function() {
           return it('focuses the suggestion whos element matches the one provided', function() {
-            collection.focusElement($('<div id="73-soulmate-suggestion">'));
-            return expect(collection.focus).toHaveBeenCalledWith(73);
+            var element;
+            element = $('<div id="73-soulmate-suggestion">');
+            return expect(function() {
+              return collection.focusElement(element);
+            }).toCallWith(collection, 'focus', [73]);
           });
         });
       });

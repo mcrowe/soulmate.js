@@ -1,3 +1,5 @@
+context = describe
+
 beforeEach(function() {
   this.addMatchers({
     toCall: function( object, fn ) {

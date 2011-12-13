@@ -5,17 +5,17 @@ describe 'SuggestionCollection', ->
   collection = null
 
   beforeEach ->
-    callback = ->
-    collection = new SuggestionCollection( callback, callback )
+    nullFunction = ->
+    collection = new SuggestionCollection( nullFunction, nullFunction )
 
   describe '#initialize', ->
     
     it 'sets the render and select callbacks', ->
       renderCallback = -> 'render'
       selectCallback = -> 'select'
-      collection = new SuggestionCollection( renderCallback, selectCallback )
-      expect( collection.renderCallback() ).toEqual( 'render' )
-      expect( collection.selectCallback() ).toEqual( 'select' )
+      withCallbacks = new SuggestionCollection( renderCallback, selectCallback )
+      expect( withCallbacks.renderCallback() ).toEqual( 'render' )
+      expect( withCallbacks.selectCallback() ).toEqual( 'select' )
       
     it 'initializes the focusedIndex to -1', ->
       expect( collection.focusedIndex ).toEqual( -1 )
@@ -23,12 +23,9 @@ describe 'SuggestionCollection', ->
     it 'initializes the suggestions to an empty array', ->
       expect( collection.suggestions ).toEqual( [] )
 
-  describe 'with real data', ->
-
     describe '#update', ->
     
-      s1 = null
-      s2 = null
+      s1 = s2 = null
     
       beforeEach ->    
         collection.update( fixtures.responseWithResults.results )
@@ -76,7 +73,7 @@ describe 'SuggestionCollection', ->
         types.each ->
           expect( $(this).text() ).toMatch( /event|venue/ )
               
-  describe 'with mock suggestions', ->
+  context 'with 10 mock suggestions', ->
     
     beforeEach ->
       for i in [0..9]
@@ -89,29 +86,33 @@ describe 'SuggestionCollection', ->
         
     describe '#blurAll', ->
       
-      it 'calls blur on all of its suggestions', ->
+      it 'calls blur on all of the suggestions', ->
         collection.blurAll()
         for i in [0..9]
           expect( collection.suggestions[i].blur ).toHaveBeenCalled()
           
     describe '#selectFocused', ->
       
-      describe 'when a suggestion is focused', ->
+      context 'when a suggestion is focused', ->
+        
+        beforeEach -> collection.focus( 1 )
         
         it 'calls "select" on the suggestion that is focused, with the selectCallback', ->
-          collection.focus(1)
           collection.selectFocused()
           expect( collection.suggestions[1].select ).toHaveBeenCalledWith( collection.selectCallback )
-          
-        it 'does nothing if no suggestion is focused', ->
-          collection.blurAll()
+
+      context 'when no suggestion is focused', ->
+        
+        beforeEach -> collection.blurAll()
+        
+        it 'does nothing', ->
           collection.selectFocused()
           for i in [0..9]
             expect( collection.suggestions[i].select ).not.toHaveBeenCalled()
     
     describe '#focus', ->
       
-      describe 'with a number between 0 and the number of suggestions', ->
+      context 'with 0 <= n < number of suggestions', ->
         
         beforeEach ->
           spyOn( collection, 'blurAll' )
@@ -126,7 +127,7 @@ describe 'SuggestionCollection', ->
         it 'sets the focusedIndex to refer to the requested suggestion', ->
           expect( collection.focusedIndex ).toEqual( 3 )
           
-      describe 'with a number larger than the number of suggestions', ->
+      context 'with number of suggestions < n', ->
         
         it 'does nothing', ->
           spyOn( collection, 'blurAll' )
@@ -136,7 +137,7 @@ describe 'SuggestionCollection', ->
             expect( collection.suggestions[i].focus ).not.toHaveBeenCalled()
           expect( collection.blurAll ).not.toHaveBeenCalled()
         
-      describe 'with a number smaller than 0', ->
+      context 'with n < 0', ->
         
         beforeEach ->
           spyOn( collection, 'blurAll' )
@@ -150,26 +151,23 @@ describe 'SuggestionCollection', ->
           for i in [0..9]
             expect( collection.suggestions[i].focus ).not.toHaveBeenCalled()        
             
-    describe 'focus helpers', ->
+    context 'focus helpers', ->
       
       beforeEach ->
-        collection.focus(1)
-        spyOn(collection, 'focus')
+        collection.focus( 1 )
             
       describe '#focusNext', ->
       
         it 'focuses the next suggestion', ->
-          collection.focusNext()
-          expect( collection.focus ).toHaveBeenCalledWith( 2 )
+          expect( -> collection.focusNext() ).toCallWith( collection, 'focus', [2] )
         
       describe '#focusPrevious', ->
         
         it 'focuses the previous suggestion', ->
-          collection.focusPrevious()
-          expect( collection.focus ).toHaveBeenCalledWith( 0 )            
+          expect( -> collection.focusPrevious() ).toCallWith( collection, 'focus', [0] )
     
       describe '#focusElement', ->
         
         it 'focuses the suggestion whos element matches the one provided', ->
-          collection.focusElement( $('<div id="73-soulmate-suggestion">') )
-          expect( collection.focus ).toHaveBeenCalledWith( 73 )
+          element = $('<div id="73-soulmate-suggestion">')
+          expect( -> collection.focusElement( element ) ).toCallWith( collection, 'focus', [73] )

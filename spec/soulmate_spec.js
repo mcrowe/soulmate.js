@@ -12,7 +12,7 @@
       setFixtures(sandbox());
       $('#sandbox').html($('<input type="text" id="search">'));
       return soulmate = new Soulmate($('#search'), {
-        url: 'http://test.com',
+        url: 'http://localhost',
         types: ['type1', 'type2', 'type3'],
         renderCallback: renderCallback,
         selectCallback: selectCallback,
@@ -20,60 +20,18 @@
         maxResults: 5
       });
     });
-    describe('with a mock fetchResults method', function() {
+    context('with a mocked fetchResults method', function() {
       beforeEach(function() {
         return soulmate.fetchResults = function() {};
       });
-      describe('#hideContainer', function() {
-        it('blurs all the suggestions', function() {
-          spyOn(soulmate.suggestions, 'blurAll');
-          soulmate.hideContainer();
-          return expect(soulmate.suggestions.blurAll).toHaveBeenCalled();
-        });
-        return it('hides the container', function() {
-          soulmate.container.show();
-          soulmate.hideContainer();
-          return expect(soulmate.container).toBeHidden();
-        });
+      it('adds a container to the dom with an id of "soulmate"', function() {
+        return expect($('#soulmate')).toExist();
       });
-      describe('#showContainer', function() {
-        it('shows the container', function() {
-          soulmate.container.hide();
-          soulmate.showContainer();
-          return expect(soulmate.container).toBeVisible();
-        });
-        describe('#update', function() {
-          return describe('with results', function() {
-            var update;
-            update = function() {
-              return soulmate.update(fixtures.responseWithResults.results);
-            };
-            it('shows the container', function() {
-              return expect(function() {
-                return update();
-              }).toCall(soulmate, 'showContainer');
-            });
-            return it('shows the new suggestions', function() {
-              update();
-              return expect(soulmate.container.html()).toMatch(/2012 Super Bowl/);
-            });
-          });
-        });
-        return describe('with empty results', function() {
-          var update;
-          update = function() {
-            return soulmate.update(fixtures.responseWithNoResults.results);
-          };
-          it('hides the container', function() {
-            return expect(function() {
-              return update();
-            }).toCall(soulmate, 'hideContainer');
-          });
-          return it('marks the current query as empty', function() {
-            return expect(function() {
-              return update();
-            }).toCall(soulmate.query, 'markEmpty');
-          });
+      describe('mousing over the input field', function() {
+        return it('should blur all the suggestions', function() {
+          return expect(function() {
+            return soulmate.input.trigger('mouseover');
+          }).toCall(soulmate.suggestions, 'blurAll');
         });
       });
       describe('pressing a key down in the input field', function() {
@@ -155,7 +113,7 @@
         it('sets the current query value to the value of the input field', function() {
           return expect(keyUp).toCallWith(soulmate.query, 'setValue', [soulmate.input.val()]);
         });
-        describe('when the query has not changed', function() {
+        context('when the query has not changed', function() {
           beforeEach(function() {
             return soulmate.query.hasChanged = function() {
               return false;
@@ -168,13 +126,13 @@
             return expect(keyUp).not.toCall(soulmate, 'hideContainer');
           });
         });
-        return describe('when the query has changed', function() {
+        return context('when the query has changed', function() {
           beforeEach(function() {
             return soulmate.query.hasChanged = function() {
               return true;
             };
           });
-          describe('when the query will have results', function() {
+          context('when the query will have results', function() {
             beforeEach(function() {
               return soulmate.query.willHaveResults = function() {
                 return true;
@@ -187,7 +145,7 @@
               return expect(keyUp).toCall(soulmate, 'fetchResults');
             });
           });
-          return describe('when the query will have no results', function() {
+          return context('when the query will have no results', function() {
             beforeEach(function() {
               return soulmate.query.willHaveResults = function() {
                 return false;
@@ -199,18 +157,16 @@
           });
         });
       });
-      describe('mousing over the input field', function() {
-        return it('should blur all the suggestions', function() {
-          var mouseOverInput;
-          mouseOverInput = function() {
-            return soulmate.input.trigger('mouseover');
-          };
-          return expect(mouseOverInput).toCall(soulmate.suggestions, 'blurAll');
-        });
-      });
-      describe('with suggestions', function() {
+      context('showing suggestions', function() {
         beforeEach(function() {
           return soulmate.update(fixtures.responseWithResults.results);
+        });
+        describe('clicking outside of the container', function() {
+          return it('hides the container', function() {
+            return expect(function() {
+              return $('#sandbox').trigger('click.soulmate');
+            }).toCall(soulmate, 'hideContainer');
+          });
         });
         describe('mousing over a suggestion', function() {
           return it('should focus that suggestion', function() {
@@ -233,7 +189,6 @@
           });
           it('refocuses the input field so it remains active', function() {
             click();
-            debugger;
             return expect(soulmate.input.is(':focus')).toBeTruthy();
           });
           return it('selects the clicked suggestion', function() {
@@ -241,14 +196,51 @@
           });
         });
       });
-      it('adds a container to the dom with an id of "soulmate"', function() {
-        return expect($('#soulmate')).toExist();
+      describe('#hideContainer', function() {
+        it('blurs all the suggestions', function() {
+          return expect(function() {
+            return soulmate.hideContainer();
+          }).toCall(soulmate.suggestions, 'blurAll');
+        });
+        return it('hides the container', function() {
+          soulmate.container.show();
+          soulmate.hideContainer();
+          return expect(soulmate.container).toBeHidden();
+        });
       });
-      return it('hides the container when you click outside of it and it is shown', function() {
-        soulmate.showContainer();
-        return expect(function() {
-          return $('#sandbox').trigger('click.soulmate');
-        }).toCall(soulmate, 'hideContainer');
+      describe('#showContainer', function() {
+        return it('shows the container', function() {
+          soulmate.container.hide();
+          soulmate.showContainer();
+          return expect(soulmate.container).toBeVisible();
+        });
+      });
+      return describe('#update', function() {
+        context('with a non-empty result set', function() {
+          var update;
+          update = function() {
+            return soulmate.update(fixtures.responseWithResults.results);
+          };
+          it('shows the container', function() {
+            return expect(update).toCall(soulmate, 'showContainer');
+          });
+          return it('shows the new suggestions', function() {
+            update();
+            return expect(soulmate.container.html()).toMatch(/2012 Super Bowl/);
+          });
+        });
+        return context('with an empty result set', function() {
+          var update;
+          update = function() {
+            return soulmate.update(fixtures.responseWithNoResults.results);
+          };
+          it('hides the container', function() {
+            return expect(update).toCall(soulmate, 'hideContainer');
+          });
+          return it('marks the current query as empty', function() {
+            return expect(update).toCall(soulmate.query, 'markEmpty');
+          });
+        });
       });
     });
     return describe('#fetchResults', function() {

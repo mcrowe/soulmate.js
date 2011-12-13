@@ -47,7 +47,7 @@
         return expect(suggestion.render(callback)).toMatch(/turtle/);
       });
     });
-    return describe('element-related functions', function() {
+    return context('with a dom sandbox', function() {
       var element;
       element = null;
       beforeEach(function() {

@@ -45,7 +45,7 @@ describe 'Suggestion', ->
       callback = -> 'turtle'
       expect( suggestion.render( callback ) ).toMatch( /turtle/ )
   
-  describe 'element-related functions', ->
+  context 'with a dom sandbox', ->
     
     element = null
     
