@@ -154,6 +154,9 @@
         return this.suggestions[this.focusedIndex].select(this.selectCallback);
       }
     };
+    SuggestionCollection.prototype.allBlured = function() {
+      return this.focusedIndex === -1;
+    };
     SuggestionCollection.prototype._renderTypeStart = function() {
       return "<li class=\"soulmate-type-container\">\n  <ul class=\"soulmate-type-suggestions\">";
     };
@@ -210,8 +213,13 @@
           this.hideContainer();
           break;
         case 'tab':
+          this.suggestions.selectFocused();
+          break;
         case 'enter':
           this.suggestions.selectFocused();
+          if (this.suggestions.allBlured()) {
+            killEvent = false;
+          }
           break;
         case 'up':
           this.suggestions.focusPrevious();

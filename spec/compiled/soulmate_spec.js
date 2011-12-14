@@ -79,8 +79,25 @@
           it('selects the currently focused selection', function() {
             return expect(enter).toCall(soulmate.suggestions, 'selectFocused');
           });
-          return it('prevents the default action', function() {
-            return expect(enter).toCall(keyDownEvent, 'preventDefault');
+          context('when no suggestion is focused', function() {
+            beforeEach(function() {
+              return soulmate.suggestions.allBlured = function() {
+                return true;
+              };
+            });
+            return it('submits the form', function() {
+              return expect(enter).not.toCall(keyDownEvent, 'preventDefault');
+            });
+          });
+          return context('when a suggestion is focused', function() {
+            beforeEach(function() {
+              return soulmate.suggestions.allBlured = function() {
+                return false;
+              };
+            });
+            return it('doesnt submit the form', function() {
+              return expect(enter).toCall(keyDownEvent, 'preventDefault');
+            });
           });
         });
         describe('up', function() {

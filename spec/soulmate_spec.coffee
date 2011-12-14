@@ -66,9 +66,22 @@ describe 'Soulmate', ->
         it 'selects the currently focused selection', ->
           expect( enter ).toCall( soulmate.suggestions, 'selectFocused' ) 
 
-        it 'prevents the default action', ->
-          expect( enter ).toCall( keyDownEvent, 'preventDefault' )
+        context 'when no suggestion is focused', ->
 
+          beforeEach -> 
+            soulmate.suggestions.allBlured = -> true
+
+          it 'submits the form', ->
+            expect( enter ).not.toCall( keyDownEvent, 'preventDefault' )
+            
+        context 'when a suggestion is focused', ->
+                    
+          beforeEach -> 
+            soulmate.suggestions.allBlured = -> false
+                    
+          it 'doesnt submit the form', ->
+            expect( enter ).toCall( keyDownEvent, 'preventDefault' )
+            
       describe 'up', ->
 
         it 'focuses the previous selection', ->

@@ -50,7 +50,7 @@ class Suggestion
       <li id="#{@id}" class="soulmate-suggestion">
         #{callback( @term, @data, @type)}
       </li>
-    """
+    """  
 
   element: ->
     $('#' + @id)  
@@ -122,6 +122,9 @@ class SuggestionCollection
     if @focusedIndex >= 0
       @suggestions[@focusedIndex].select( @selectCallback )
   
+  allBlured: ->
+    @focusedIndex == -1
+  
   # PRIVATE
   
   _renderTypeStart: ->
@@ -186,8 +189,14 @@ class Soulmate
       when 'escape'
         @hideContainer()
 
-      when 'tab', 'enter'
+      when 'tab'
         @suggestions.selectFocused()
+
+      when 'enter'
+        @suggestions.selectFocused()
+        # Submit the form if no input is focused.
+        if @suggestions.allBlured()
+          killEvent = false
 
       when 'up'
         @suggestions.focusPrevious()

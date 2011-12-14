@@ -25,63 +25,63 @@
       it('initializes the focusedIndex to -1', function() {
         return expect(collection.focusedIndex).toEqual(-1);
       });
-      it('initializes the suggestions to an empty array', function() {
+      return it('initializes the suggestions to an empty array', function() {
         return expect(collection.suggestions).toEqual([]);
       });
-      describe('#update', function() {
-        var s1, s2;
-        s1 = s2 = null;
-        beforeEach(function() {
-          collection.update(fixtures.responseWithResults.results);
-          s1 = collection.suggestions[0];
-          return s2 = collection.suggestions[4];
-        });
-        it('adds a suggestion for each suggestion in the results', function() {
-          return expect(collection.count()).toEqual(6);
-        });
-        it('sets the right terms', function() {
-          expect(s1.term).toEqual('2012 Super Bowl');
-          return expect(s2.term).toEqual('The Borgata Event Center ');
-        });
-        it('sets the right data', function() {
-          expect(s1.data).toEqual({});
-          return expect(s2.data).toEqual({
-            'url': 'http://www.google.com'
-          });
-        });
-        return it('sets the right types', function() {
-          expect(s1.type).toEqual('event');
-          return expect(s2.type).toEqual('venue');
+    });
+    describe('#update', function() {
+      var s1, s2;
+      s1 = s2 = null;
+      beforeEach(function() {
+        collection.update(fixtures.responseWithResults.results);
+        s1 = collection.suggestions[0];
+        return s2 = collection.suggestions[4];
+      });
+      it('adds a suggestion for each suggestion in the results', function() {
+        return expect(collection.count()).toEqual(6);
+      });
+      it('sets the right terms', function() {
+        expect(s1.term).toEqual('2012 Super Bowl');
+        return expect(s2.term).toEqual('The Borgata Event Center ');
+      });
+      it('sets the right data', function() {
+        expect(s1.data).toEqual({});
+        return expect(s2.data).toEqual({
+          'url': 'http://www.google.com'
         });
       });
-      return describe('#render', function() {
-        var rendered;
-        rendered = null;
-        beforeEach(function() {
-          collection.update(fixtures.responseWithResults.results);
-          return rendered = collection.render();
+      return it('sets the right types', function() {
+        expect(s1.type).toEqual('event');
+        return expect(s2.type).toEqual('venue');
+      });
+    });
+    describe('#render', function() {
+      var rendered;
+      rendered = null;
+      beforeEach(function() {
+        collection.update(fixtures.responseWithResults.results);
+        return rendered = collection.render();
+      });
+      it('renders all of the suggestions', function() {
+        return expect($('.soulmate-suggestion', $(rendered)).length).toEqual(6);
+      });
+      it('renders the suggestions for each type inside a ul', function() {
+        var typeLists;
+        typeLists = $('ul.soulmate-type-suggestions', $(rendered));
+        expect(typeLists.length).toEqual(2);
+        return typeLists.each(function() {
+          return expect($('.soulmate-suggestion', $(this)).length).toEqual(3);
         });
-        it('renders all of the suggestions', function() {
-          return expect($('.soulmate-suggestion', $(rendered)).length).toEqual(6);
-        });
-        it('renders the suggestions for each type inside a ul', function() {
-          var typeLists;
-          typeLists = $('ul.soulmate-type-suggestions', $(rendered));
-          expect(typeLists.length).toEqual(2);
-          return typeLists.each(function() {
-            return expect($('.soulmate-suggestion', $(this)).length).toEqual(3);
-          });
-        });
-        it('renders a list item container for each type', function() {
-          return expect($(rendered).filter('li.soulmate-type-container').length).toEqual(2);
-        });
-        return it('renders each type as a div with a class of "soulmate-type"', function() {
-          var types;
-          types = $('div.soulmate-type', $(rendered));
-          expect(types.length).toEqual(2);
-          return types.each(function() {
-            return expect($(this).text()).toMatch(/event|venue/);
-          });
+      });
+      it('renders a list item container for each type', function() {
+        return expect($(rendered).filter('li.soulmate-type-container').length).toEqual(2);
+      });
+      return it('renders each type as a div with a class of "soulmate-type"', function() {
+        var types;
+        types = $('div.soulmate-type', $(rendered));
+        expect(types.length).toEqual(2);
+        return types.each(function() {
+          return expect($(this).text()).toMatch(/event|venue/);
         });
       });
     });
@@ -108,6 +108,16 @@
             _results.push(expect(collection.suggestions[i].blur).toHaveBeenCalled());
           }
           return _results;
+        });
+      });
+      describe('#allBlured', function() {
+        it('is true if all the suggestions are blured', function() {
+          collection.blurAll();
+          return expect(collection.allBlured()).toBeTruthy();
+        });
+        return it('is false if any suggestion is focused', function() {
+          collection.focus(1);
+          return expect(collection.allBlured()).toBeFalsy();
         });
       });
       describe('#selectFocused', function() {
