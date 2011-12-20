@@ -2,7 +2,7 @@
 
 Soulmate.js is a jQuery plugin front-end for [soulmate](https://github.com/seatgeek/soulmate), an excellent auto-suggestion gem built for speed on sinatra and redis. Together, they provide lightning-fast plug-n-play auto-suggestion. See [soulmate on github](https://github.com/seatgeek/soulmate) for more details on the back-end interface.
 
-**Note:** This plugin is not affiliated with the soulmate gem or its authors. The name is merely a knock-off.
+_**Note:** This plugin is not affiliated with the soulmate gem or its authors. The name is merely a knock-off._
 
 ## Demo
 
