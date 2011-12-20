@@ -15,7 +15,7 @@ The `demo` directory in the source provides an example usage and styling of the 
 * **Well tested:** Ridiculous spec coverage using Jasmine.
 * **Clean markup:** Renders a clean and semantic markup structure that is easy to style.
 * **Speed:** Minimizes requests by maintaining a list of queries with no suggestions. No additional requests are made when a user keeps typing on an empty query.
-* **Cross-domain compatible:** Uses jsonp to accommodate backends on separate domain (which is a good practice since it allows the auto-suggest system can get overwhelmed without affecting the main site).
+* **Cross-domain compatible:** Uses jsonp to accommodate backends on separate domain (which is a good practice since it allows the auto-suggest system to get overwhelmed without affecting the main site).
 * **Customizable behaviour:** Customized rendering of suggestions through a callback that provides all stored data for that suggestion. Customized suggestion selection behaviour through a callback.
 * **Adaptable:** A modular, object-oriented design, that is meant to be very easy to adapt and modify.
 
@@ -34,9 +34,6 @@ First, setup an instance of [soulmate](https://github.com/seatgeek/soulmate). Th
 `main.js`
 
     ...
-    // Focus the search field on page load.
-    $('#search-input').focus();
-
     // Define the rendering and selecting behaviour for suggestions.
     render = function(term, data, type){ return term; }
     select = function(term, data, type){ console.log("Selected " + term); }
@@ -58,4 +55,4 @@ For more information, see the specifications in the `spec/` directory.
 
 Soulmate.js is covered by Jasmine and Jasmine-JQuery specs. See the `spec/` directory to browse the specifications.
 
-To run the specs, simple open `spec/spec_runner.html` in your browser.
+To run the specs, simply open `spec/spec_runner.html` in your browser.
