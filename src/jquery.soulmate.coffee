@@ -162,7 +162,11 @@ class Soulmate
     @suggestions      = new SuggestionCollection( renderCallback, selectCallback )  
     @query            = new Query( minQueryLength )  
         
-    @container = $('<ul id="soulmate">').insertAfter(@input)
+    if ($('ul#soulmate').length > 0)
+			@container = $('ul#soulmate')
+		else
+			@container = $('<ul id="soulmate">').insertAfter(@input)
+
       
     @container.delegate('.soulmate-suggestion',
       mouseover: -> that.suggestions.focusElement( this )
