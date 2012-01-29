@@ -178,19 +178,24 @@
       40: 'down'
     };
     function Soulmate(input, options) {
-      var maxResults, minQueryLength, renderCallback, selectCallback, that, types, url;
+      var maxResults, minQueryLength, renderCallback, selectCallback, that, timeout, types, url;
       this.input = input;
       this.handleKeyup = __bind(this.handleKeyup, this);
       this.handleKeydown = __bind(this.handleKeydown, this);
       that = this;
-      url = options.url, types = options.types, renderCallback = options.renderCallback, selectCallback = options.selectCallback, maxResults = options.maxResults, minQueryLength = options.minQueryLength;
+      url = options.url, types = options.types, renderCallback = options.renderCallback, selectCallback = options.selectCallback, maxResults = options.maxResults, minQueryLength = options.minQueryLength, timeout = options.timeout;
       this.url = url;
       this.types = types;
       this.maxResults = maxResults;
+      this.timeout = timeout || 500;
       this.xhr = null;
       this.suggestions = new SuggestionCollection(renderCallback, selectCallback);
       this.query = new Query(minQueryLength);
-      this.container = $('<ul id="soulmate">').insertAfter(this.input);
+      if ($('ul#soulmate').length > 0) {
+        this.container = $('ul#soulmate');
+      } else {
+        this.container = $('<ul id="soulmate">').insertAfter(this.input);
+      }
       this.container.delegate('.soulmate-suggestion', {
         mouseover: function() {
           return that.suggestions.focusElement(this);
@@ -266,7 +271,7 @@
       return this.xhr = $.ajax({
         url: this.url,
         dataType: 'jsonp',
-        timeout: 500,
+        timeout: this.timeout,
         cache: true,
         data: {
           term: this.query.getValue(),

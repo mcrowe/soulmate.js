@@ -224,4 +224,16 @@ describe 'Soulmate', ->
 
     it 'calls "update" with the responses results on success', ->
       expect( -> $.ajax.mostRecentCall.args[0].success( {results: {}} ) ).toCall( soulmate, 'update' )
-      
+            
+  it "can accept timeout as a parameter", ->
+    soulmate2 = new Soulmate( $('#search'), {
+      url:            'http://localhost'
+      types:          ['type1', 'type2', 'type3']
+      timeout:        2000
+      renderCallback: renderCallback
+      selectCallback: selectCallback
+      minQueryLength: 2
+      maxResults: 5
+    })
+    expect(soulmate2.timeout).toNotEqual 500
+    expect(soulmate2.timeout).toEqual 2000

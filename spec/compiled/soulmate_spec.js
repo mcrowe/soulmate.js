@@ -1,6 +1,8 @@
 (function() {
   var Soulmate;
+
   Soulmate = window._test.Soulmate;
+
   describe('Soulmate', function() {
     var renderCallback, selectCallback, soulmate;
     soulmate = renderCallback = selectCallback = null;
@@ -260,7 +262,7 @@
         });
       });
     });
-    return describe('#fetchResults', function() {
+    describe('#fetchResults', function() {
       beforeEach(function() {
         soulmate.query.setValue('job');
         spyOn($, 'ajax');
@@ -277,5 +279,20 @@
         }).toCall(soulmate, 'update');
       });
     });
+    return it("can accept timeout as a parameter", function() {
+      var soulmate2;
+      soulmate2 = new Soulmate($('#search'), {
+        url: 'http://localhost',
+        types: ['type1', 'type2', 'type3'],
+        timeout: 2000,
+        renderCallback: renderCallback,
+        selectCallback: selectCallback,
+        minQueryLength: 2,
+        maxResults: 5
+      });
+      expect(soulmate2.timeout).toNotEqual(500);
+      return expect(soulmate2.timeout).toEqual(2000);
+    });
   });
+
 }).call(this);
