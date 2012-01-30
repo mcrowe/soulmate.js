@@ -151,23 +151,23 @@ class Soulmate
 
     that = this
     
-    {url, types, renderCallback, selectCallback, maxResults, minQueryLength} = options
+    {url, types, renderCallback, selectCallback, maxResults, minQueryLength, timeout} = options
+
     
     @url              = url
     @types            = types
     @maxResults       = maxResults
+    @timeout          = timeout || 500
     
     @xhr              = null
 
     @suggestions      = new SuggestionCollection( renderCallback, selectCallback )  
     @query            = new Query( minQueryLength )  
-        
-    if ($('ul#soulmate').length > 0)
-			@container = $('ul#soulmate')
-		else
-			@container = $('<ul id="soulmate">').insertAfter(@input)
 
-      
+    if ($('ul#soulmate').length > 0)
+      @container = $('ul#soulmate')
+    else
+      @container = $('<ul id="soulmate">').insertAfter(@input)
     @container.delegate('.soulmate-suggestion',
       mouseover: -> that.suggestions.focusElement( this )
       click: (event) -> 
@@ -251,7 +251,7 @@ class Soulmate
     @xhr = $.ajax({
       url: @url
       dataType: 'jsonp'
-      timeout: 500
+      timeout: @timeout
       cache: true
       data: {
         term: @query.getValue()
