@@ -27,10 +27,10 @@ describe 'Suggestion', ->
     
   describe '#render', ->
     
-    it 'calls the provided callback with the term, data, and type', ->
+    it 'calls the provided callback with the term, data, type, index, and dom id', ->
       callback = jasmine.createSpy()
       suggestion.render( callback )
-      expect( callback ).toHaveBeenCalledWith( 'mitch crowe', {}, 'people' )  
+      expect( callback ).toHaveBeenCalledWith( 'mitch crowe', {}, 'people', 1, '1-soulmate-suggestion' )  
     
     it 'returns an li tag as a string', ->
       expect( suggestion.render( callback ) ).toMatch(/<li/)

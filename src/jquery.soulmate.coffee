@@ -49,7 +49,7 @@ class Suggestion
   render: (callback) ->
     """
       <li id="#{@id}" class="soulmate-suggestion">
-        #{callback( @term, @data, @type)}
+        #{callback( @term, @data, @type, @index, @id)}
       </li>
     """  
 

@@ -1,6 +1,8 @@
 (function() {
   var Suggestion;
+
   Suggestion = window._test.Suggestion;
+
   describe('Suggestion', function() {
     var callback, suggestion;
     suggestion = null;
@@ -26,10 +28,10 @@
       });
     });
     describe('#render', function() {
-      it('calls the provided callback with the term, data, and type', function() {
+      it('calls the provided callback with the term, data, type, index, and dom id', function() {
         callback = jasmine.createSpy();
         suggestion.render(callback);
-        return expect(callback).toHaveBeenCalledWith('mitch crowe', {}, 'people');
+        return expect(callback).toHaveBeenCalledWith('mitch crowe', {}, 'people', 1, '1-soulmate-suggestion');
       });
       it('returns an li tag as a string', function() {
         return expect(suggestion.render(callback)).toMatch(/<li/);
@@ -77,4 +79,5 @@
       });
     });
   });
+
 }).call(this);
