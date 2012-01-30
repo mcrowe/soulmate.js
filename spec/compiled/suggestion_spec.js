@@ -19,10 +19,10 @@
       });
     });
     describe('#select', function() {
-      return it('calls the provided callback with the term, data, and type', function() {
+      return it('calls the provided callback with the term, data, type, index, and dom id', function() {
         callback = jasmine.createSpy();
         suggestion.select(callback);
-        return expect(callback).toHaveBeenCalledWith('mitch crowe', {}, 'people');
+        return expect(callback).toHaveBeenCalledWith('mitch crowe', {}, 'people', 1, '1-soulmate-suggestion');
       });
     });
     describe('#render', function() {

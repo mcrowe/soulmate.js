@@ -35,9 +35,10 @@ class Query
 class Suggestion
   constructor: (index, @term, @data, @type) ->
     @id = "#{index}-soulmate-suggestion"
+    @index = index
     
   select: (callback) ->
-    callback( @term, @data, @type )
+    callback( @term, @data, @type, @index, @id)
     
   focus: ->  
     @element().addClass( 'focus' )
