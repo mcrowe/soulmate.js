@@ -20,10 +20,10 @@ describe 'Suggestion', ->
   
   describe '#select', ->
     
-    it 'calls the provided callback with the term, data, and type', ->
+    it 'calls the provided callback with the term, data, type, index, and dom id', ->
       callback = jasmine.createSpy()
       suggestion.select( callback )
-      expect( callback ).toHaveBeenCalledWith( 'mitch crowe', {}, 'people' )
+      expect( callback ).toHaveBeenCalledWith( 'mitch crowe', {}, 'people', 1, '1-soulmate-suggestion' )
     
   describe '#render', ->
     
