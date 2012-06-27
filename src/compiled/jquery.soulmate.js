@@ -336,13 +336,16 @@
       }
     };
 
+    Soulmate.prototype.setTypes = function(types) {
+      return this.types = types;
+    };
+
     return Soulmate;
 
   })();
 
   $.fn.soulmate = function(options) {
-    new Soulmate($(this), options);
-    return $(this);
+    return new Soulmate($(this), options);
   };
 
   window._test = {
