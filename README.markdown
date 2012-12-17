@@ -40,7 +40,7 @@ First, setup an instance of [soulmate](https://github.com/seatgeek/soulmate). Th
 
     // Make the input field autosuggest-y.
     $('#search-input').soulmate({
-      url:            'http://soulmate.YOUR-DOMAIN.com',
+      url:            'http://soulmate.YOUR-DOMAIN.com/search',
       types:          ['type1', 'type2', 'type3', 'type4'],
       renderCallback: render,
       selectCallback: select,
